@@ -6,13 +6,14 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
+import java.io.Serializable;
 
 /**
  * TODO Sprint add-controllers.
  */
 @Data
 @Entity
-@Table
+@Table(name = "users")
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
