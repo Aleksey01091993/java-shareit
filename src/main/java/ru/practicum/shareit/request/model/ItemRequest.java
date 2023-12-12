@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @Entity
-@Table
+@Table(name = "request")
 @NoArgsConstructor
 @AllArgsConstructor
 public class ItemRequest {
@@ -22,7 +22,7 @@ public class ItemRequest {
     private Long id;
     private String description;
     @OneToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "user_id")
     private User requestor;
     private LocalDateTime create;
 }

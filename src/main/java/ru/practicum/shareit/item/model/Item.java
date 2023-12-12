@@ -26,10 +26,10 @@ public class Item {
     private String description;
     private Boolean available;
     @OneToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "user_id")
     private User owner;
     @OneToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "request_id")
     private ItemRequest request;
 
     public Item(String name, String description, Boolean available, User owner, ItemRequest request) {

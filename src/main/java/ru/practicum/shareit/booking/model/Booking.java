@@ -1,4 +1,4 @@
-package ru.practicum.shareit.booking;
+package ru.practicum.shareit.booking.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,10 +24,12 @@ public class Booking {
     private LocalDateTime start;
     private LocalDateTime end;
     @OneToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "item_id")
     private Item item;
     @OneToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "user_id")
     private User booker;
     private String status;
+
+
 }
