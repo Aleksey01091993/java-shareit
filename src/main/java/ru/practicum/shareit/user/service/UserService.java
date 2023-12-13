@@ -8,10 +8,13 @@ import ru.practicum.shareit.user.storage.UserStorage;
 @Service
 public class UserService {
 
+
+    private final UserStorage storage;
+
     @Autowired
-    private UserStorage storage;
-
-
+    public UserService(UserStorage storage) {
+        this.storage = storage;
+    }
 
     public User create(User user) {
         return storage.save(user);
