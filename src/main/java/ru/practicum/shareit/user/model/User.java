@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.item.model.Item;
 
 
 import java.io.Serializable;
@@ -32,4 +33,6 @@ public class User {
         this.name = name;
         this.email = email;
     }
+
+
 }

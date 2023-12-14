@@ -26,10 +26,10 @@ public class Booking {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     @OneToOne
-    @JoinColumn(name = "item_id")
+    @JoinColumn(name = "id")
     private Item item;
     @OneToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "id")
     private User booker;
     private String status;
 

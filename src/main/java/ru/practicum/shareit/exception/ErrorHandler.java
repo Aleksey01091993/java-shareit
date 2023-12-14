@@ -13,7 +13,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleIncorrectParamException(final IncorrectParamException e) {
+    public ErrorResponse badRequest(final BadRequest400 e) {
         log.info(e.getMessage());
         return new ErrorResponse(e.getMessage());
     }
@@ -21,6 +21,13 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse emailException(final EmailException e) {
+        log.info(e.getMessage());
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse notFound(final NotFound404 e) {
         log.info(e.getMessage());
         return new ErrorResponse(e.getMessage());
     }

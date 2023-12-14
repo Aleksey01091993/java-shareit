@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -27,11 +29,13 @@ public class Item {
     private String description;
     private Boolean available;
     @OneToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "id")
     private User owner;
     @OneToOne
-    @JoinColumn(name = "request_id")
+    @JoinColumn(name = "id")
     private ItemRequest request;
+
+
 
     public Item(String name, String description, Boolean available, User owner, ItemRequest request) {
         this.name = name;
@@ -39,5 +43,6 @@ public class Item {
         this.available = available;
         this.owner = owner;
         this.request = request;
+
     }
 }
