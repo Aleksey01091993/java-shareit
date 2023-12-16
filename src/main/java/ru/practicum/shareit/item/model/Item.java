@@ -7,10 +7,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
-
+import java.io.Serializable;
 
 
 /**
@@ -19,9 +21,11 @@ import ru.practicum.shareit.user.model.User;
 @Data
 @Entity
 @Table
+@DynamicInsert
+@DynamicUpdate
 @NoArgsConstructor
 @AllArgsConstructor
-public class Item {
+public class Item implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,10 +33,8 @@ public class Item {
     private String description;
     private Boolean available;
     @OneToOne
-    @JoinColumn(name = "id")
     private User owner;
     @OneToOne
-    @JoinColumn(name = "id")
     private ItemRequest request;
 
 

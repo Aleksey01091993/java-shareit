@@ -23,7 +23,6 @@ public class ItemRequest {
     private Long id;
     private String description;
     @OneToOne
-    @JoinColumn(name = "id")
     private User requestor;
     private LocalDateTime create;
 }

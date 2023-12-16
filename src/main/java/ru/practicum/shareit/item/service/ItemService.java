@@ -11,10 +11,13 @@ import ru.practicum.shareit.item.storage.ItemStorage;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 
+import java.io.Serializable;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
-public class ItemService {
+public class ItemService implements Serializable {
 
     private final ItemStorage itemStorage;
     private final UserStorage userStorage;
@@ -38,7 +41,8 @@ public class ItemService {
             throw new NotFound404("user not found");
         }
         item.setOwner(user);
-        return ItemMapper.toItemDto(itemStorage.save(item));
+        Item itemOne = itemStorage.save(item);
+        return ItemMapper.toItemDto(itemOne);
     }
 
     public ItemDTO update(Item item, Long userId, Long itemId) throws Exception {
@@ -63,6 +67,21 @@ public class ItemService {
         ItemDTO itemDTO = ItemMapper.toItemDto(itemStorage.save(itemNew));
         return itemDTO;
     }
+
+    public ItemDTO get(Long itemId) throws Exception {
+        Item item = itemStorage.findById(itemId).get();
+        return ItemMapper.toItemDto(item);
+    }
+
+    public List<ItemDTO> getAll(Long userId) {
+         return itemStorage.findAll().stream()
+                .filter(o1 -> o1.getOwner() != null)
+                .filter(o1 -> (o1.getOwner().getId().equals(userId)))
+                .map(ItemMapper::toItemDto)
+                .collect(Collectors.toList());
+    }
+
+
 
 
 }

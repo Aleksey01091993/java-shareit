@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 import ru.practicum.shareit.item.model.Item;
 
 
@@ -17,6 +19,8 @@ import java.io.Serializable;
 @Data
 @Entity
 @Table(name = "users")
+@DynamicUpdate
+@DynamicInsert
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
