@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.model;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,7 +9,6 @@ import org.hibernate.annotations.DynamicUpdate;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
-import javax.persistence.*;
 import java.io.Serializable;
 
 
