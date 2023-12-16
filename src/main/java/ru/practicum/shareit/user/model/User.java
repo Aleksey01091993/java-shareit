@@ -8,10 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import ru.practicum.shareit.item.model.Item;
-
-
-import java.io.Serializable;
 
 /**
  * TODO Sprint add-controllers.

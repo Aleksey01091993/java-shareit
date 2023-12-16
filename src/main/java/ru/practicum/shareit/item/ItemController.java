@@ -64,7 +64,10 @@ public class ItemController {
 
     @GetMapping("/search")
     public List<ItemDTO> getAllSearch(@RequestParam String text) {
-        return service.getAllSearch(text);
+        log.info("Пришел GET запрос /items/search?text={}", text);
+        List<ItemDTO> itemDTOList = service.getAllSearch(text);
+        log.info("Отправлен ответ для GET запроса /items/search?text={} с телом: {}", text, itemDTOList);
+        return itemDTOList;
     }
 
 

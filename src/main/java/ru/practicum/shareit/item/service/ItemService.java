@@ -11,7 +11,6 @@ import ru.practicum.shareit.item.storage.ItemStorage;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -75,7 +74,7 @@ public class ItemService {
     }
 
     public List<ItemDTO> getAll(Long userId) {
-         return itemStorage.findAll().stream()
+        return itemStorage.findAll().stream()
                 .filter(o1 -> o1.getOwner() != null)
                 .filter(o1 -> (o1.getOwner().getId().equals(userId)))
                 .map(ItemMapper::toItemDto)

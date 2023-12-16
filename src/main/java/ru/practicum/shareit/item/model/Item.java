@@ -1,11 +1,8 @@
 package ru.practicum.shareit.item.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -36,7 +33,6 @@ public class Item implements Serializable {
     private User owner;
     @OneToOne
     private ItemRequest request;
-
 
 
     public Item(String name, String description, Boolean available, User owner, ItemRequest request) {
