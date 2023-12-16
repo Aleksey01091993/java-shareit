@@ -54,11 +54,17 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDTO> getAll(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<ItemDTO> getAll(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                @RequestParam(required = false) String text) {
         log.info("Пришел GET запрос /items");
         List<ItemDTO> itemDTOList = service.getAll(userId);
         log.info("Отправлен ответ для GET запроса /items с телом: {}", itemDTOList);
         return itemDTOList;
+    }
+
+    @GetMapping("/search")
+    public List<ItemDTO> getAllSearch(@RequestParam String text) {
+        return service.getAllSearch(text);
     }
 
 

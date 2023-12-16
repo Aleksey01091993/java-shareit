@@ -12,12 +12,13 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
-public class ItemService implements Serializable {
+public class ItemService {
 
     private final ItemStorage itemStorage;
     private final UserStorage userStorage;
@@ -81,7 +82,17 @@ public class ItemService implements Serializable {
                 .collect(Collectors.toList());
     }
 
+    public List<ItemDTO> getAllSearch(String search) {
+        if (search.isEmpty()) {
+            return new ArrayList<>();
+        } else {
+            return itemStorage.findAll().stream()
+                    .filter(o1 -> o1.getName().toLowerCase().contains(search.toLowerCase()) ||
+                            o1.getDescription().toLowerCase().contains(search.toLowerCase()))
+                    .filter(Item::getAvailable)
+                    .map(ItemMapper::toItemDto)
+                    .collect(Collectors.toList());
+        }
 
-
-
+    }
 }
