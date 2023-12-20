@@ -29,32 +29,24 @@ public class ItemService {
         this.userStorage = userStorage;
     }
 
-    public ItemDTO create(Item item, Long userId) throws Exception {
-        if (item.getAvailable() == null || item.getDescription() == null || item.getName() == null
-                || item.getDescription().isEmpty() || item.getName().isEmpty()) {
-            throw new BadRequest400("поле не может быть пустым");
-        }
-        User user;
-        try {
-            user = userStorage.findById(userId).get();
-        } catch (NoSuchElementException e) {
-            throw new NotFound404("user not found");
-        }
-        item.setOwner(user);
-        Item itemOne = itemStorage.save(item);
+    public Item create(ItemDTO item, Long userId) {
+        User user = userStorage.findById(userId)
+                    .orElseThrow(() -> new NotFound404("user not found by id: " + userId));
+
+        Item itemOne = itemStorage.save(ItemMapper.toItem(item, user));
         return ItemMapper.toItemDto(itemOne);
     }
 
-    public ItemDTO update(Item item, Long userId, Long itemId) throws Exception {
-        Item itemNew = itemStorage.findById(itemId).get();
-        try {
-            if (!itemNew.getOwner().getId().equals(userId)) {
+    public Item update(ItemDTO item, Long userId, Long itemId) {
+        Item itemNew = itemStorage.findById(itemId)
+                .orElseThrow(() -> new NotFound404("item not found by id:" + itemId));
+
+        if (!itemNew.getOwner().getId().equals(userId)) {
                 throw new NotFound404("not found");
             }
-            userStorage.findById(userId).get();
-        } catch (NoSuchElementException e) {
-            throw new NotFound404("user not found");
-        }
+        userStorage.findById(userId)
+                    .orElseThrow(() -> new NotFound404("user not found by id: " + userId));
+
         if (item.getName() != null) {
             itemNew.setName(item.getName());
         }
@@ -64,32 +56,29 @@ public class ItemService {
         if (item.getDescription() != null) {
             itemNew.setDescription(item.getDescription());
         }
-        ItemDTO itemDTO = ItemMapper.toItemDto(itemStorage.save(itemNew));
-        return itemDTO;
+        return itemStorage.save(itemNew);
     }
 
-    public ItemDTO get(Long itemId) throws Exception {
-        Item item = itemStorage.findById(itemId).get();
-        return ItemMapper.toItemDto(item);
+    public Item get(Long itemId) {
+        return itemStorage.findById(itemId)
+                .orElseThrow(() -> new NotFound404("item not found by id:" + itemId));
     }
 
-    public List<ItemDTO> getAll(Long userId) {
+    public List<Item> getAll(Long userId) {
         return itemStorage.findAll().stream()
                 .filter(o1 -> o1.getOwner() != null)
                 .filter(o1 -> (o1.getOwner().getId().equals(userId)))
-                .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
 
-    public List<ItemDTO> getAllSearch(String search) {
-        if (search.isEmpty()) {
+    public List<Item> getAllSearch(String search) {
+        if (search == null || search.isEmpty()) {
             return new ArrayList<>();
         } else {
             return itemStorage.findAll().stream()
                     .filter(o1 -> o1.getName().toLowerCase().contains(search.toLowerCase()) ||
                             o1.getDescription().toLowerCase().contains(search.toLowerCase()))
                     .filter(Item::getAvailable)
-                    .map(ItemMapper::toItemDto)
                     .collect(Collectors.toList());
         }
 

@@ -1,19 +1,21 @@
 package ru.practicum.shareit.item;
 
 import jakarta.annotation.Nullable;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.exception.NotFound404;
 import ru.practicum.shareit.item.dto.ItemDTO;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-/**
- * TODO Sprint add-controllers.
- */
+
 @Component
 @Slf4j
 @RestController
@@ -28,45 +30,53 @@ public class ItemController {
     }
 
     @PostMapping
-    public ItemDTO create(@RequestBody Item item, @RequestHeader("X-Sharer-User-Id") Long userId) throws Exception {
+    public Item itemCreateRequestDTO(@RequestBody @Valid ItemDTO item,
+                                     @RequestHeader("X-Sharer-User-Id") Long userId) throws NotFound404
+    {
         log.info("Пришел POST запрос /items с телом: {}", item);
-        ItemDTO itemDTO = service.create(item, userId);
-        log.info("Отправлен ответ для POST запроса /items с телом: {}", itemDTO);
-        return itemDTO;
+        ItemDTO itemResponseDto = ItemMapper.toItemDto(service.create(item, userId));
+        log.info("Отправлен ответ для POST запроса /items с телом: {}", itemResponseDto);
+        return itemResponseDto;
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDTO update(@RequestBody @Nullable Item item,
+    public Item itemUpdateDTO(@RequestBody @Nullable ItemDTO item,
                           @RequestHeader("X-Sharer-User-Id") Long userId,
-                          @PathVariable Long itemId) throws Exception {
+                          @PathVariable Long itemId)
+    {
         log.info("Пришел PATH запрос /items/{} с телом: {}", itemId, item);
-        ItemDTO itemDTO = service.update(item, userId, itemId);
-        log.info("Отправлен ответ для PATH запроса /items/{} с телом: {}", itemDTO, itemDTO);
-        return itemDTO;
+        ItemDTO itemResponseDto = ItemMapper.toItemDto(service.update(item, userId, itemId));
+        log.info("Отправлен ответ для PATH запроса /items/{} с телом: {}", itemId, itemResponseDto);
+        return itemResponseDto;
     }
 
     @GetMapping("/{itemId}")
-    public ItemDTO get(@PathVariable Long itemId) throws Exception {
+    public Item itemGetDTO(@PathVariable Long itemId)
+    {
         log.info("Пришел GET запрос /items/{}", itemId);
-        ItemDTO itemDTO = service.get(itemId);
-        log.info("Отправлен ответ для GET запроса /items/{} с телом: {}", itemId, itemDTO);
-        return itemDTO;
+        ItemDTO itemResponseDto = ItemMapper.toItemDto(service.get(itemId));
+        log.info("Отправлен ответ для GET запроса /items/{} с телом: {}", itemId, itemResponseDto);
+        return itemResponseDto;
     }
 
     @GetMapping
-    public List<ItemDTO> getAll(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public List<Item> itemsGetAllDTO(@RequestHeader("X-Sharer-User-Id") Long userId,
                                 @RequestParam(required = false) String text) {
         log.info("Пришел GET запрос /items");
-        List<ItemDTO> itemDTOList = service.getAll(userId);
-        log.info("Отправлен ответ для GET запроса /items с телом: {}", itemDTOList);
-        return itemDTOList;
+        List<Item> itemResponseDto = service.getAll(userId).stream()
+                .map(ItemMapper::toItemDto)
+                .collect(Collectors.toList());
+        log.info("Отправлен ответ для GET запроса /items с телом: {}", itemResponseDto);
+        return itemResponseDto;
     }
 
     @GetMapping("/search")
-    public List<ItemDTO> getAllSearch(@RequestParam String text) {
-        log.info("Пришел GET запрос /items/search?text={}", text);
-        List<ItemDTO> itemDTOList = service.getAllSearch(text);
-        log.info("Отправлен ответ для GET запроса /items/search?text={} с телом: {}", text, itemDTOList);
+    public List<Item> itemsGetAllSearchDTO(@RequestParam String search) {
+        log.info("Пришел GET запрос /items/search?text={}", search);
+        List<Item> itemDTOList = service.getAllSearch(search).stream()
+                .map(ItemMapper::toItemDto)
+                .collect(Collectors.toList());
+        log.info("Отправлен ответ для GET запроса /items/search?text={} с телом: {}", search, itemDTOList);
         return itemDTOList;
     }
 

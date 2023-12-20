@@ -12,9 +12,7 @@ import ru.practicum.shareit.user.model.User;
 import java.io.Serializable;
 
 
-/**
- * TODO Sprint add-controllers.
- */
+
 @Data
 @Entity
 @Table

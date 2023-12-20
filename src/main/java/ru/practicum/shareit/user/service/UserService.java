@@ -3,6 +3,9 @@ package ru.practicum.shareit.user.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.EmailException;
+import ru.practicum.shareit.exception.NotFound404;
+import ru.practicum.shareit.user.dto.UserDTO;
+import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 
@@ -21,15 +24,15 @@ public class UserService {
         this.storage = storage;
     }
 
-    public User create(User user) {
+    public User create(UserDTO user) {
         if (this.email.contains(user.getEmail())) {
             throw new EmailException("пользователь с таким email уже существует");
         }
         this.email.add(user.getEmail());
-        return storage.save(user);
+        return storage.save(UserMapper.toUser(user));
     }
 
-    public User update(User user, Long userId) {
+    public User update(UserDTO user, Long userId) {
         User newUser = get(userId);
         if (user.getEmail() == null && user.getName() != null) {
             newUser.setName(user.getName());
@@ -59,7 +62,8 @@ public class UserService {
     }
 
     public User get(Long userId) {
-        return storage.findById(userId).get();
+        return storage.findById(userId)
+                .orElseThrow(() -> new NotFound404("user not found by id:" + userId));
     }
 
     public User delete(Long id) {

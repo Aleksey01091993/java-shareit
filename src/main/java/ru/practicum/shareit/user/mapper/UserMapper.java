@@ -7,14 +7,17 @@ import ru.practicum.shareit.user.model.User;
 public class UserMapper {
     public static UserDTO userDTO(User user) {
         return new UserDTO(
-                user.getName()
+                user.getId(),
+                user.getName(),
+                user.getEmail()
         );
     }
 
-    public static User toUser(UserCreationDTO userCreationDTO) {
+    public static User toUser(UserDTO userDTO) {
         return new User(
-                userCreationDTO.getName(),
-                userCreationDTO.getEmail()
+                userDTO.getId(),
+                userDTO.getName(),
+                userDTO.getEmail()
         );
     }
 }
