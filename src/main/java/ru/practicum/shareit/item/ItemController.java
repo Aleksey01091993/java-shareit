@@ -31,8 +31,7 @@ public class ItemController {
 
     @PostMapping
     public Item itemCreateRequestDTO(@RequestBody @Valid ItemDTO item,
-                                     @RequestHeader("X-Sharer-User-Id") Long userId) throws NotFound404
-    {
+                                     @RequestHeader("X-Sharer-User-Id") Long userId) throws NotFound404 {
         log.info("Пришел POST запрос /items с телом: {}", item);
         ItemDTO itemResponseDto = ItemMapper.toItemDto(service.create(item, userId));
         log.info("Отправлен ответ для POST запроса /items с телом: {}", itemResponseDto);
@@ -41,9 +40,8 @@ public class ItemController {
 
     @PatchMapping("/{itemId}")
     public Item itemUpdateDTO(@RequestBody @Nullable ItemDTO item,
-                          @RequestHeader("X-Sharer-User-Id") Long userId,
-                          @PathVariable Long itemId)
-    {
+                              @RequestHeader("X-Sharer-User-Id") Long userId,
+                              @PathVariable Long itemId) {
         log.info("Пришел PATH запрос /items/{} с телом: {}", itemId, item);
         ItemDTO itemResponseDto = ItemMapper.toItemDto(service.update(item, userId, itemId));
         log.info("Отправлен ответ для PATH запроса /items/{} с телом: {}", itemId, itemResponseDto);
@@ -51,8 +49,7 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public Item itemGetDTO(@PathVariable Long itemId)
-    {
+    public Item itemGetDTO(@PathVariable Long itemId) {
         log.info("Пришел GET запрос /items/{}", itemId);
         ItemDTO itemResponseDto = ItemMapper.toItemDto(service.get(itemId));
         log.info("Отправлен ответ для GET запроса /items/{} с телом: {}", itemId, itemResponseDto);
@@ -61,7 +58,7 @@ public class ItemController {
 
     @GetMapping
     public List<Item> itemsGetAllDTO(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                @RequestParam(required = false) String text) {
+                                     @RequestParam(required = false) String text) {
         log.info("Пришел GET запрос /items");
         List<Item> itemResponseDto = service.getAll(userId).stream()
                 .map(ItemMapper::toItemDto)

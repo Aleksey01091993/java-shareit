@@ -2,7 +2,6 @@ package ru.practicum.shareit.item.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.BadRequest400;
 import ru.practicum.shareit.exception.NotFound404;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.mapper.ItemMapper;
@@ -13,7 +12,6 @@ import ru.practicum.shareit.user.storage.UserStorage;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,7 +29,7 @@ public class ItemService {
 
     public Item create(ItemDTO item, Long userId) {
         User user = userStorage.findById(userId)
-                    .orElseThrow(() -> new NotFound404("user not found by id: " + userId));
+                .orElseThrow(() -> new NotFound404("user not found by id: " + userId));
 
         Item itemOne = itemStorage.save(ItemMapper.toItem(item, user));
         return ItemMapper.toItemDto(itemOne);
@@ -42,10 +40,10 @@ public class ItemService {
                 .orElseThrow(() -> new NotFound404("item not found by id:" + itemId));
 
         if (!itemNew.getOwner().getId().equals(userId)) {
-                throw new NotFound404("not found");
-            }
+            throw new NotFound404("not found");
+        }
         userStorage.findById(userId)
-                    .orElseThrow(() -> new NotFound404("user not found by id: " + userId));
+                .orElseThrow(() -> new NotFound404("user not found by id: " + userId));
 
         if (item.getName() != null) {
             itemNew.setName(item.getName());
