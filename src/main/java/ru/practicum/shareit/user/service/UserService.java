@@ -15,7 +15,6 @@ import java.util.Set;
 
 @Service
 public class UserService {
-    private final Set<String> email = new HashSet<>();
 
     private final UserStorage storage;
 
@@ -25,39 +24,14 @@ public class UserService {
     }
 
     public User create(UserDTO user) {
-        if (this.email.contains(user.getEmail())) {
-            throw new EmailException("пользователь с таким email уже существует");
-        }
-        this.email.add(user.getEmail());
         return storage.save(UserMapper.toUser(user));
     }
 
     public User update(UserDTO user, Long userId) {
         User newUser = get(userId);
-        if (user.getEmail() == null && user.getName() != null) {
-            newUser.setName(user.getName());
-            return storage.save(newUser);
-        } else if (user.getEmail() != null && user.getName() == null) {
-            if (user.getEmail().equals(newUser.getEmail())) {
-                return newUser;
-            }
-            if (this.email.contains(user.getEmail())) {
-                throw new EmailException("пользователь с таким email уже существует");
-            }
-            this.email.remove(newUser.getEmail());
-            this.email.add(user.getEmail());
-            newUser.setEmail(user.getEmail());
-            return storage.save(newUser);
-        } else {
-            if (this.email.contains(user.getEmail())) {
-                throw new EmailException("пользователь с таким email уже существует");
-            }
-            this.email.remove(get(userId).getEmail());
-            this.email.add(user.getEmail());
-            newUser.setName(user.getName());
-            newUser.setEmail(user.getEmail());
-            return storage.save(newUser);
-        }
+        if (user.getName() != null) newUser.setName(user.getName());
+        if (user.getEmail() != null) newUser.setEmail(user.getEmail());
+        return storage.save(newUser);
 
     }
 
@@ -71,7 +45,6 @@ public class UserService {
             throw new EmailException("Пустой запрос на удоление");
         }
         User user = get(id);
-        email.remove(user.getEmail());
         storage.deleteById(id);
         return user;
     }

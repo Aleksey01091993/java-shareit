@@ -1,25 +1,26 @@
 package ru.practicum.shareit.booking.dto;
 
-
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.status.Status;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class BookingDto extends Booking {
+public class BookingCreationDTO extends Booking {
     private Long id;
+    private Long itemId;
+    @FutureOrPresent
+    @NotNull
     private LocalDateTime start;
+    @Future
+    @NotNull
     private LocalDateTime end;
-    private Status status;
-    private User booker;
-    private Item item;
-    ;
+
 }

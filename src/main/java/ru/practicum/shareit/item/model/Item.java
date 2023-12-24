@@ -31,7 +31,7 @@ public class Item implements Serializable {
     private String name;
     private String description;
     private Boolean available;
-    @OneToOne
+    @ManyToOne
     private User owner;
     @OneToOne
     private ItemRequest request;
