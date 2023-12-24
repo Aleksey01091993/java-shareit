@@ -32,5 +32,12 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse internalServerError(final InternalServerError500 e) {
+        log.info(e.getMessage());
+        return new ErrorResponse(e.getMessage());
+    }
+
 }
 
