@@ -8,12 +8,9 @@ import lombok.NoArgsConstructor;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
-
 import java.time.LocalDateTime;
 
-/**
- * TODO Sprint add-bookings.
- */
+
 @Data
 @Entity
 @Table
@@ -26,10 +23,8 @@ public class Booking {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     @OneToOne
-    @JoinColumn(name = "item_id")
     private Item item;
     @OneToOne
-    @JoinColumn(name = "user_id")
     private User booker;
     private String status;
 

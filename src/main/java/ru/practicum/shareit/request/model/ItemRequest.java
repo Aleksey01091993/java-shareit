@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.user.model.User;
 
-
 import java.time.LocalDateTime;
 
 /**
@@ -14,7 +13,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @Entity
-@Table(name = "request")
+@Table
 @NoArgsConstructor
 @AllArgsConstructor
 public class ItemRequest {
@@ -23,7 +22,6 @@ public class ItemRequest {
     private Long id;
     private String description;
     @OneToOne
-    @JoinColumn(name = "user_id")
     private User requestor;
     private LocalDateTime create;
 }
