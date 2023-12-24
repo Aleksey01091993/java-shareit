@@ -60,8 +60,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<Item> itemsGetAllDTO(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                @RequestParam(required = false) String text) {
+    public List<Item> itemsGetAllDTO(@RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("Пришел GET запрос /items");
         List<Item> itemResponseDto = service.getAll(userId).stream()
                 .map(ItemMapper::toItemDto)
@@ -71,12 +70,12 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<Item> itemsGetAllSearchDTO(@RequestParam String search) {
-        log.info("Пришел GET запрос /items/search?text={}", search);
-        List<Item> itemDTOList = service.getAllSearch(search).stream()
+    public List<Item> itemsGetAllSearchDTO(@RequestParam String text) {
+        log.info("Пришел GET запрос /items/search?text={}", text);
+        List<Item> itemDTOList = service.getAllSearch(text).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
-        log.info("Отправлен ответ для GET запроса /items/search?text={} с телом: {}", search, itemDTOList);
+        log.info("Отправлен ответ для GET запроса /items/search?text={} с телом: {}", text, itemDTOList);
         return itemDTOList;
     }
 

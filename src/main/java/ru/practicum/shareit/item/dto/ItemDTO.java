@@ -21,5 +21,5 @@ public class ItemDTO extends Item {
     private String description;
     @NotNull
     private Boolean available;
-    private Long request;
+    private Long requestId;
 }
