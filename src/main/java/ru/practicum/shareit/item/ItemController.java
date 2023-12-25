@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.NotFound404;
+import ru.practicum.shareit.item.dto.ItemBookerDTO;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
@@ -51,10 +52,11 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public Item itemGetDTO(@PathVariable Long itemId)
+    public Item itemGetDTO(@PathVariable Long itemId,
+                           @RequestHeader ("X-Sharer-User-Id") Long userId)
     {
         log.info("Пришел GET запрос /items/{}", itemId);
-        ItemDTO itemResponseDto = ItemMapper.toItemDto(service.get(itemId));
+        Item itemResponseDto = service.get(itemId, userId);
         log.info("Отправлен ответ для GET запроса /items/{} с телом: {}", itemId, itemResponseDto);
         return itemResponseDto;
     }
@@ -62,9 +64,7 @@ public class ItemController {
     @GetMapping
     public List<Item> itemsGetAllDTO(@RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("Пришел GET запрос /items");
-        List<Item> itemResponseDto = service.getAll(userId).stream()
-                .map(ItemMapper::toItemDto)
-                .collect(Collectors.toList());
+        List<Item> itemResponseDto = service.getAll(userId);
         log.info("Отправлен ответ для GET запроса /items с телом: {}", itemResponseDto);
         return itemResponseDto;
     }

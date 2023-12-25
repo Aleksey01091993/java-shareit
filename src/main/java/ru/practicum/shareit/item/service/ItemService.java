@@ -2,7 +2,11 @@ package ru.practicum.shareit.item.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.dto.BookerToItem;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.storage.BookingStorage;
 import ru.practicum.shareit.exception.NotFound404;
+import ru.practicum.shareit.item.dto.ItemBookerDTO;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
@@ -10,6 +14,7 @@ import ru.practicum.shareit.item.storage.ItemStorage;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,12 +24,15 @@ public class ItemService {
 
     private final ItemStorage itemStorage;
     private final UserStorage userStorage;
+    private final BookingStorage bookingStorage;
 
 
     public ItemService(@Autowired ItemStorage itemStorage,
-                       @Autowired UserStorage userStorage) {
+                       @Autowired UserStorage userStorage,
+                       @Autowired BookingStorage bookingStorage) {
         this.itemStorage = itemStorage;
         this.userStorage = userStorage;
+        this.bookingStorage = bookingStorage;
     }
 
     public Item create(ItemDTO item, Long userId) {
@@ -57,16 +65,38 @@ public class ItemService {
         return itemStorage.save(itemNew);
     }
 
-    public Item get(Long itemId) {
-        return itemStorage.findById(itemId)
+    public Item get(Long itemId, Long ownerId) {
+        List<Booking> lastBooking = bookingStorage
+                .findByItem_IdAndItem_OwnerIdAndEndTimeBeforeOrderByEndTimeAsc(itemId, ownerId, LocalDateTime.now());
+        List<Booking> nextBooking = bookingStorage
+                .findByItem_IdAndItem_OwnerIdAndStartTimeAfterOrderByEndTimeAsc(itemId, ownerId, LocalDateTime.now());
+
+        Item item = itemStorage.findById(itemId)
                 .orElseThrow(() -> new NotFound404("item not found by id:" + itemId));
+        return ItemMapper.toItemBookerDTO(item,
+                lastBooking.isEmpty() ? null : lastBooking.get(0),
+                nextBooking.isEmpty() ? null : nextBooking.get(0));
+
     }
 
     public List<Item> getAll(Long userId) {
-        return itemStorage.findAll().stream()
-                .filter(o1 -> o1.getOwner() != null)
-                .filter(o1 -> (o1.getOwner().getId().equals(userId)))
-                .collect(Collectors.toList());
+        List<Item> items = itemStorage.findAll().stream()
+                        .filter(o1 -> o1.getOwner() != null)
+                        .filter(o1 -> (o1.getOwner().getId().equals(userId)))
+                        .collect(Collectors.toList());
+        List<Item> newItem = new ArrayList<>();
+        for (Item a: items) {
+            List<Booking> lastBooking = bookingStorage
+                    .findByItem_IdAndItem_OwnerIdAndEndTimeBeforeOrderByEndTimeAsc(a.getId(), userId, LocalDateTime.now());
+            List<Booking> nextBooking = bookingStorage
+                    .findByItem_IdAndItem_OwnerIdAndStartTimeAfterOrderByEndTimeAsc(a.getId(), userId, LocalDateTime.now());
+            newItem.add(
+                    ItemMapper.toItemBookerDTO(a,
+                            lastBooking.isEmpty() ? null : lastBooking.get(0),
+                            nextBooking.isEmpty() ? null : nextBooking.get(0)));
+
+        }
+        return newItem;
     }
 
     public List<Item> getAllSearch(String search) {
