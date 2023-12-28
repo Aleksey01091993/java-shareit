@@ -7,7 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exception.NotFound404;
-import ru.practicum.shareit.item.dto.ItemBookerDTO;
+import ru.practicum.shareit.item.coments.DTO.CommentsDTO;
+import ru.practicum.shareit.item.coments.mapper.CommentMapper;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
@@ -77,6 +78,16 @@ public class ItemController {
                 .collect(Collectors.toList());
         log.info("Отправлен ответ для GET запроса /items/search?text={} с телом: {}", text, itemDTOList);
         return itemDTOList;
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentsDTO addCommentsDTO(
+            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @PathVariable Long itemId,
+            @RequestBody String text
+    ) {
+        CommentsDTO commentResponseDTO = CommentMapper.toCommentsDTO(service.addComment(userId, itemId, text));
+        return commentResponseDTO;
     }
 
 

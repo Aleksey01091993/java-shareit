@@ -4,17 +4,16 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import ru.practicum.shareit.item.coments.DTO.CommentsDTO;
+import ru.practicum.shareit.item.coments.model.Comments;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import java.io.Serializable;
-
-
-
-
-
+import java.util.List;
 
 
 @Data
@@ -33,8 +32,10 @@ public class Item implements Serializable {
     private Boolean available;
     @ManyToOne
     private User owner;
-    @OneToOne
+    @ManyToOne
     private ItemRequest request;
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Comments> comments;
 
 
     public Item(String name, String description, Boolean available, User owner, ItemRequest request) {

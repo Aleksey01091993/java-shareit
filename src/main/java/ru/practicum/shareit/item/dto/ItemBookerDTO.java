@@ -4,7 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import ru.practicum.shareit.booking.dto.BookerToItem;
+import ru.practicum.shareit.item.coments.model.Comments;
 import ru.practicum.shareit.item.model.Item;
+
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -17,6 +20,7 @@ public class ItemBookerDTO extends Item {
     private Long requestId;
     private BookerToItem lastBooking;
     private BookerToItem nextBooking;
+    private List<Comments> comments;
 
 
 }

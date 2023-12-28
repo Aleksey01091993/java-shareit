@@ -103,7 +103,7 @@ public class BookingService {
         } else if (state.equals("CURRENT")) {
             return bookingStorage
                     .findByBooker_IdAndStartTimeLessThanAndEndTimeGreaterThanOrderByStartTimeDesc(bookerId, LocalDateTime.now(), LocalDateTime.now());
-        } else if (state.equals("**PAST**")) {
+        } else if (state.equals("PAST")) {
             return bookingStorage.findByBooker_IdAndEndTimeGreaterThanOrderByStartTimeDesc(bookerId, LocalDateTime.now());
         } else if (state.equals("FUTURE")) {
             return bookingStorage
@@ -128,7 +128,7 @@ public class BookingService {
         } else if (state.equals("CURRENT")) {
             return bookingStorage
                     .findByItem_OwnerIdAndStartTimeLessThanAndEndTimeGreaterThanOrderByStartTimeDesc(ownerId, LocalDateTime.now(), LocalDateTime.now());
-        } else if (state.equals("**PAST**")) {
+        } else if (state.equals("PAST")) {
             return bookingStorage
                     .findByItem_OwnerIdAndEndTimeGreaterThanOrderByStartTimeDesc(ownerId, LocalDateTime.now());
         } else if (state.equals("FUTURE")) {

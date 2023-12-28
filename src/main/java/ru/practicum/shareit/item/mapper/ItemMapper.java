@@ -35,7 +35,8 @@ public class ItemMapper {
                 item.getAvailable(),
                 item.getRequest() != null ? item.getRequest().getId() : null,
                 lastBooking == null ? null : new BookerToItem(lastBooking.getId(), lastBooking.getBooker().getId()),
-                nextBooking == null ? null : new BookerToItem(nextBooking.getId(), nextBooking.getBooker().getId())
+                nextBooking == null ? null : new BookerToItem(nextBooking.getId(), nextBooking.getBooker().getId()),
+                item.getComments()
         );
     }
 

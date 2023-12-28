@@ -2,8 +2,12 @@ package ru.practicum.shareit.item.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.storage.BookingStorage;
 import ru.practicum.shareit.exception.NotFound404;
+import ru.practicum.shareit.item.coments.mapper.CommentMapper;
+import ru.practicum.shareit.item.coments.model.Comments;
+import ru.practicum.shareit.item.coments.storage.CommentsStorage;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
@@ -16,6 +20,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ru.practicum.shareit.booking.status.Status.APPROVED;
+
 @Service
 public class ItemService implements Serializable {
 
@@ -23,13 +29,18 @@ public class ItemService implements Serializable {
     private final UserStorage userStorage;
     private final BookingStorage bookingStorage;
 
+    private final CommentsStorage commentsStorage;
+
 
     public ItemService(@Autowired ItemStorage itemStorage,
                        @Autowired UserStorage userStorage,
-                       @Autowired BookingStorage bookingStorage) {
+                       @Autowired BookingStorage bookingStorage,
+                       @Autowired CommentsStorage commentsStorage
+    ) {
         this.itemStorage = itemStorage;
         this.userStorage = userStorage;
         this.bookingStorage = bookingStorage;
+        this.commentsStorage = commentsStorage;
     }
 
     public Item create(ItemDTO item, Long userId) {
@@ -98,4 +109,21 @@ public class ItemService implements Serializable {
         }
 
     }
+
+    public Comments addComment(Long userId, Long itemId, String text) {
+        Item item = itemStorage.findById(itemId)
+                .orElseThrow(() -> new NotFound404("item not found by id:" + itemId));
+        User user = userStorage.findById(userId)
+                .orElseThrow(() -> new NotFound404("user not found by id:" + userId));
+        Booking  booking = bookingStorage.findFirstByBookerIdAndItemIdAndStatusAndEndTimeBefore(userId, itemId, APPROVED, LocalDateTime.now())
+                .orElseThrow(() -> new NotFound404("вы не можете остовлять коментарий!"));
+        Comments comments = new Comments(null, text, item, user, LocalDateTime.now());
+        item.getComments().add(comments);
+        Item newItem = itemStorage.save(item);
+        return comments;
+
+
+    }
+
+
 }

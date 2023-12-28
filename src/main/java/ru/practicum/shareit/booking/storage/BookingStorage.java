@@ -21,10 +21,9 @@ public interface BookingStorage extends JpaRepository<Booking, Long> {
     List<Booking> findByItem_OwnerIdAndStartTimeLessThanAndEndTimeGreaterThanOrderByStartTimeDesc(Long id, LocalDateTime dateTime, LocalDateTime dateTimeOne);
     List<Booking> findByItem_OwnerIdAndEndTimeGreaterThanOrderByStartTimeDesc(Long id, LocalDateTime dateTime);
     List<Booking> findByItem_OwnerIdAndStartTimeGreaterThanOrderByStartTimeDesc(Long id, LocalDateTime dateTime);
-    List<Booking> findByItem_IdAndItem_OwnerIdAndEndTimeBeforeOrderByEndTimeAsc(Long itemId, Long ownerId, LocalDateTime dateTime);
     Optional<Booking> findFirstByEndTimeBeforeAndItemIdAndItem_OwnerIdOrderByEndTime(LocalDateTime dateTime, Long itemId, Long ownerId);
-    List<Booking> findByItem_IdAndItem_OwnerIdAndStartTimeAfterOrderByEndTimeAsc(Long itemId, Long ownerId, LocalDateTime dateTime);
     Optional<Booking> findFirstByStartTimeAfterAndItemIdAndItem_OwnerIdOrderByStartTime(LocalDateTime dateTime, Long itemId, Long ownerId);
+    Optional<Booking> findFirstByBookerIdAndItemIdAndStatusAndEndTimeBefore(Long userId, Long itemId, Status status, LocalDateTime dateTime);
 
 
 
