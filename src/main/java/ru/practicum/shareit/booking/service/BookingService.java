@@ -42,13 +42,15 @@ public class BookingService {
                 bookingCreationDTO.getStart().equals(bookingCreationDTO.getEnd())) {
             throw new BadRequest400("дата окончания позже даты начала");
         }
-
         if (!item.getAvailable()) {
             throw new BadRequest400("вещь недоступна для бронирования");
         }
 
         User user = userStorage.findById(userId)
                 .orElseThrow(() -> new NotFound404("user not found by id:" + userId));
+        if (userId.equals(item.getOwner().getId())) {
+            throw new NotFound404("Владелец вещи не может ее забронировать");
+        }
 
         Booking booking = new Booking(
                 bookingCreationDTO.getId(),

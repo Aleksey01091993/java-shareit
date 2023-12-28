@@ -10,4 +10,7 @@ import java.util.List;
 
 
 @Repository
-public interface ItemStorage extends JpaRepository<Item, Long> {}
+public interface ItemStorage extends JpaRepository<Item, Long> {
+    List<Item> findAllByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndAvailable(String search, String search1, Boolean in);
+    List<Item> findAllByOwnerId(Long id);
+}
