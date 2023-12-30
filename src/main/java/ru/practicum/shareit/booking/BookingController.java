@@ -4,14 +4,13 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.booking.dto.BookingDTO;
 import ru.practicum.shareit.booking.dto.BookingCreationDTO;
-import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingAndTimeDTO;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
-import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingService;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @RestController
@@ -26,53 +25,46 @@ public class BookingController {
     }
 
     @PostMapping
-    public Booking createBookingDTO(
+    public BookingAndTimeDTO createBookingDTO(
             @RequestBody @Valid @Nullable BookingCreationDTO bookingCreationDTO,
             @RequestHeader("X-Sharer-User-Id") Long userId
     ) {
-        BookingDto bookingResponse = BookingMapper.toBookingDTO(service.create(bookingCreationDTO, userId));
-        return bookingResponse;
+        return BookingMapper.toBookingAndTimeDTO(service.create(bookingCreationDTO, userId));
     }
 
     @PatchMapping("/{bookingId}")
-    public Booking approvedBookingDTO
+    public BookingAndTimeDTO approvedBookingDTO
             (
                     @RequestHeader("X-Sharer-User-Id") Long userId,
                     @PathVariable Long bookingId,
                     @RequestParam Boolean approved
             ) {
-        BookingDto bookingResponse = BookingMapper.toBookingDTO(service.approved(bookingId, userId, approved));
-        return bookingResponse;
+        return BookingMapper.toBookingAndTimeDTO(service.approved(bookingId, userId, approved));
     }
 
     @GetMapping("/{bookingId}")
-    public Booking getBookingDTO
+    public BookingAndTimeDTO getBookingDTO
             (
                     @RequestHeader("X-Sharer-User-Id") Long userId,
                     @PathVariable Long bookingId
             ) {
-        BookingDto bookingResponse = BookingMapper.toBookingDTO(service.get(bookingId, userId));
-        return bookingResponse;
+        return BookingMapper.toBookingAndTimeDTO(service.get(bookingId, userId));
     }
 
     @GetMapping
-    public List<Booking> gatAllBookingDTO
+    public List<BookingDTO> gatAllBookingDTO
             (
                     @RequestHeader("X-Sharer-User-Id") Long userId,
                     @RequestParam @Nullable String state
             ) {
-        return service.getAll(userId, state).stream()
-                .map(BookingMapper::toBookingDTO)
-                .collect(Collectors.toList());
+        return service.getAll(userId, state);
     }
 
     @GetMapping("/owner")
-    public List<Booking> getAllOwnerId
+    public List<BookingDTO> getAllOwnerId
             (@RequestHeader("X-Sharer-User-Id") Long ownerId,
              @RequestParam @Nullable String state
             ) {
-        return service.getAllOwnerId(ownerId, state).stream()
-                .map(BookingMapper::toBookingDTO)
-                .collect(Collectors.toList());
+        return service.getAllOwnerId(ownerId, state);
     }
 }

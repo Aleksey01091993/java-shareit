@@ -3,7 +3,9 @@ package ru.practicum.shareit.booking.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.dto.BookingDTO;
 import ru.practicum.shareit.booking.dto.BookingCreationDTO;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.storage.BookingStorage;
 import ru.practicum.shareit.exception.BadRequest400;
@@ -16,6 +18,7 @@ import ru.practicum.shareit.user.storage.UserStorage;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static ru.practicum.shareit.booking.status.Status.*;
 
@@ -60,7 +63,8 @@ public class BookingService {
                 user,
                 WAITING
         );
-        return bookingStorage.save(booking);
+        Booking newBooking = bookingStorage.save(booking);
+        return booking;
 
 
     }
@@ -79,7 +83,8 @@ public class BookingService {
             } else {
                 newBooking.setStatus(REJECTED);
             }
-            return bookingStorage.save(newBooking);
+            Booking oneBooking = bookingStorage.save(newBooking);
+            return oneBooking;
         } else {
             throw new NotFound404("owner not found by id:" + userId);
         }
@@ -96,50 +101,81 @@ public class BookingService {
         }
     }
 
-    public List<Booking> getAll(Long bookerId, String state) {
+    public List<BookingDTO> getAll(Long bookerId, String state) {
         if (state == null || state.equals("ALL")) {
             return bookingStorage
-                    .findByBooker_IdOrderByStartTimeDesc(bookerId);
+                    .findByBooker_IdOrderByStartTimeDesc(bookerId).stream()
+                    .map(BookingMapper::toBookingAndTimeDTO)
+                    .collect(Collectors.toList());
         } else if (state.equals("CURRENT")) {
             return bookingStorage
-                    .findByBooker_IdAndStartTimeLessThanAndEndTimeGreaterThanOrderByStartTimeDesc(bookerId, LocalDateTime.now(), LocalDateTime.now());
+                    .findByBooker_IdAndStartTimeBeforeAndEndTimeAfterOrderByStartTimeAsc(bookerId, LocalDateTime.now(), LocalDateTime.now())
+                    .stream()
+                    .map(BookingMapper::toBookingAndTimeDTO)
+                    .collect(Collectors.toList());
         } else if (state.equals("PAST")) {
-            return bookingStorage.findByBooker_IdAndEndTimeGreaterThanOrderByStartTimeDesc(bookerId, LocalDateTime.now());
+            return bookingStorage
+                    .findByBooker_IdAndEndTimeBeforeOrderByStartTimeDesc(bookerId, LocalDateTime.now())
+                    .stream()
+                    .map(BookingMapper::toBookingAndTimeDTO)
+                    .collect(Collectors.toList());
         } else if (state.equals("FUTURE")) {
             return bookingStorage
-                    .findByBooker_IdAndStartTimeGreaterThanOrderByStartTimeDesc(bookerId, LocalDateTime.now());
+                    .findByBooker_IdAndStartTimeAfterOrderByStartTimeDesc(bookerId, LocalDateTime.now()).stream()
+                    .map(BookingMapper::toBookingAndTimeDTO)
+                    .collect(Collectors.toList());
         } else if (state.equals("WAITING")) {
             return bookingStorage
-                    .findByBooker_IdAndStatusOrderByStartTimeDesc(bookerId, WAITING);
+                    .findByBooker_IdAndStatusOrderByStartTimeDesc(bookerId, WAITING).stream()
+                    .map(BookingMapper::toBookingAndTimeDTO)
+                    .collect(Collectors.toList());
         } else if (state.equals("REJECTED")) {
             return bookingStorage
-                    .findByBooker_IdAndStatusOrderByStartTimeDesc(bookerId, REJECTED);
+                    .findByBooker_IdAndStatusOrderByStartTimeDesc(bookerId, REJECTED).stream()
+                    .map(BookingMapper::toBookingAndTimeDTO)
+                    .collect(Collectors.toList());
         } else {
             throw new InternalServerError500("Unknown state: " + state);
         }
 
     }
 
-    public List<Booking> getAllOwnerId(Long ownerId, String state) {
+
+
+    public List<BookingDTO> getAllOwnerId(Long ownerId, String state) {
         userStorage.findById(ownerId)
                 .orElseThrow(() -> new InternalServerError500("owner not found by id:" + ownerId));
         if (state == null || state.equals("ALL")) {
-            return bookingStorage.findByItem_OwnerIdOrderByStartTimeDesc(ownerId);
+            return bookingStorage.findByItem_OwnerIdOrderByStartTimeDesc(ownerId).stream()
+                    .map(BookingMapper::toBookingAndTimeDTO)
+                    .collect(Collectors.toList());
         } else if (state.equals("CURRENT")) {
             return bookingStorage
-                    .findByItem_OwnerIdAndStartTimeLessThanAndEndTimeGreaterThanOrderByStartTimeDesc(ownerId, LocalDateTime.now(), LocalDateTime.now());
+                    .findByItem_OwnerIdAndStartTimeBeforeAndEndTimeAfterOrderByStartTimeAsc(ownerId, LocalDateTime.now(), LocalDateTime.now())
+                    .stream()
+                    .map(BookingMapper::toBookingAndTimeDTO)
+                    .collect(Collectors.toList());
         } else if (state.equals("PAST")) {
             return bookingStorage
-                    .findByItem_OwnerIdAndEndTimeGreaterThanOrderByStartTimeDesc(ownerId, LocalDateTime.now());
+                    .findByItem_OwnerIdAndEndTimeBeforeOrderByStartTimeDesc(ownerId, LocalDateTime.now())
+                    .stream()
+                    .map(BookingMapper::toBookingAndTimeDTO)
+                    .collect(Collectors.toList());
         } else if (state.equals("FUTURE")) {
             return bookingStorage
-                    .findByItem_OwnerIdAndStartTimeGreaterThanOrderByStartTimeDesc(ownerId, LocalDateTime.now());
+                    .findByItem_OwnerIdAndStartTimeAfterOrderByStartTimeDesc(ownerId, LocalDateTime.now()).stream()
+                    .map(BookingMapper::toBookingAndTimeDTO)
+                    .collect(Collectors.toList());
         } else if (state.equals("WAITING")) {
             return bookingStorage
-                    .findByItem_OwnerIdAndStatusOrderByStartTimeDesc(ownerId, WAITING);
+                    .findByItem_OwnerIdAndStatusOrderByStartTimeDesc(ownerId, WAITING).stream()
+                    .map(BookingMapper::toBookingAndTimeDTO)
+                    .collect(Collectors.toList());
         } else if (state.equals("REJECTED")) {
             return bookingStorage
-                    .findByItem_OwnerIdAndStatusOrderByStartTimeDesc(ownerId, REJECTED);
+                    .findByItem_OwnerIdAndStatusOrderByStartTimeDesc(ownerId, REJECTED).stream()
+                    .map(BookingMapper::toBookingAndTimeDTO)
+                    .collect(Collectors.toList());
         } else {
             throw new InternalServerError500("Unknown state: " + state);
         }

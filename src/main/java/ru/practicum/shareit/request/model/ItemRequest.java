@@ -4,9 +4,11 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.item.coments.model.Comments;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * TODO Sprint add-item-requests.
@@ -24,4 +26,6 @@ public class ItemRequest {
     @OneToOne
     private User requestor;
     private LocalDateTime create;
+    @Transient
+    private List<Comments> comments;
 }

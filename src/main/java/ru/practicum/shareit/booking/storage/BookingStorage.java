@@ -15,14 +15,14 @@ public interface BookingStorage extends JpaRepository<Booking, Long> {
     List<Booking> findByBooker_IdAndStatusOrderByStartTimeDesc(Long id, Status status);
     List<Booking> findByItem_OwnerIdOrderByStartTimeDesc(Long id);
     List<Booking> findByItem_OwnerIdAndStatusOrderByStartTimeDesc(Long id, Status status);
-    List<Booking> findByBooker_IdAndStartTimeLessThanAndEndTimeGreaterThanOrderByStartTimeDesc(Long id, LocalDateTime dateTime, LocalDateTime dateTimeOne);
-    List<Booking> findByBooker_IdAndEndTimeGreaterThanOrderByStartTimeDesc(Long id, LocalDateTime dateTime);
-    List<Booking> findByBooker_IdAndStartTimeGreaterThanOrderByStartTimeDesc(Long id, LocalDateTime dateTime);
-    List<Booking> findByItem_OwnerIdAndStartTimeLessThanAndEndTimeGreaterThanOrderByStartTimeDesc(Long id, LocalDateTime dateTime, LocalDateTime dateTimeOne);
-    List<Booking> findByItem_OwnerIdAndEndTimeGreaterThanOrderByStartTimeDesc(Long id, LocalDateTime dateTime);
-    List<Booking> findByItem_OwnerIdAndStartTimeGreaterThanOrderByStartTimeDesc(Long id, LocalDateTime dateTime);
-    Optional<Booking> findFirstByEndTimeBeforeAndItemIdAndItem_OwnerIdOrderByEndTime(LocalDateTime dateTime, Long itemId, Long ownerId);
-    Optional<Booking> findFirstByStartTimeAfterAndItemIdAndItem_OwnerIdOrderByStartTime(LocalDateTime dateTime, Long itemId, Long ownerId);
+    List<Booking> findByBooker_IdAndStartTimeBeforeAndEndTimeAfterOrderByStartTimeAsc(Long id, LocalDateTime dateTime, LocalDateTime dateTimeOne);
+    List<Booking> findByBooker_IdAndEndTimeBeforeOrderByStartTimeDesc(Long id, LocalDateTime dateTime);
+    List<Booking> findByBooker_IdAndStartTimeAfterOrderByStartTimeDesc(Long id, LocalDateTime dateTime);
+    List<Booking> findByItem_OwnerIdAndStartTimeBeforeAndEndTimeAfterOrderByStartTimeAsc(Long id, LocalDateTime dateTime, LocalDateTime dateTimeOne);
+    List<Booking> findByItem_OwnerIdAndEndTimeBeforeOrderByStartTimeDesc(Long id, LocalDateTime dateTime);
+    List<Booking> findByItem_OwnerIdAndStartTimeAfterOrderByStartTimeDesc(Long id, LocalDateTime dateTime);
+    Optional<Booking> findFirstByEndTimeBeforeAndItemIdAndItem_OwnerIdOrderByEndTimeDesc(LocalDateTime dateTime, Long itemId, Long ownerId);
+    Optional<Booking> findFirstByStartTimeAfterAndItemIdAndItem_OwnerIdAndStatusOrderByStartTime(LocalDateTime dateTime, Long itemId, Long ownerId, Status status);
     Optional<Booking> findFirstByBookerIdAndItemIdAndStatusAndEndTimeBefore(Long userId, Long itemId, Status status, LocalDateTime dateTime);
 
 

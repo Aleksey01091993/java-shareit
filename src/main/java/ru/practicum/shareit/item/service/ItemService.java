@@ -4,7 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.storage.BookingStorage;
+import ru.practicum.shareit.exception.BadRequest400;
 import ru.practicum.shareit.exception.NotFound404;
+import ru.practicum.shareit.item.coments.DTO.CommentsDTO;
 import ru.practicum.shareit.item.coments.mapper.CommentMapper;
 import ru.practicum.shareit.item.coments.model.Comments;
 import ru.practicum.shareit.item.coments.storage.CommentsStorage;
@@ -19,6 +21,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static ru.practicum.shareit.booking.status.Status.APPROVED;
 
@@ -78,9 +81,10 @@ public class ItemService implements Serializable {
                 .orElseThrow(() -> new NotFound404("item not found by id:" + itemId));
         return ItemMapper.toItemBookerDTO(item,
                 bookingStorage
-                        .findFirstByEndTimeBeforeAndItemIdAndItem_OwnerIdOrderByEndTime(LocalDateTime.now(), itemId, ownerId).orElse(null),
+                        .findFirstByEndTimeBeforeAndItemIdAndItem_OwnerIdOrderByEndTimeDesc(LocalDateTime.now(), itemId, ownerId).orElse(null),
                 bookingStorage
-                        .findFirstByStartTimeAfterAndItemIdAndItem_OwnerIdOrderByStartTime(LocalDateTime.now(), itemId, ownerId).orElse(null));
+                        .findFirstByStartTimeAfterAndItemIdAndItem_OwnerIdAndStatusOrderByStartTime(LocalDateTime.now(), itemId, ownerId, APPROVED).orElse(null),
+                commentsStorage.findAllByItemId(itemId).stream().map(CommentMapper::toCommentsDTO).collect(Collectors.toList()));
 
     }
 
@@ -92,9 +96,10 @@ public class ItemService implements Serializable {
             newItem.add(
                     ItemMapper.toItemBookerDTO(item,
                             bookingStorage
-                                    .findFirstByEndTimeBeforeAndItemIdAndItem_OwnerIdOrderByEndTime(LocalDateTime.now(), item.getId(), userId).orElse(null),
+                                    .findFirstByEndTimeBeforeAndItemIdAndItem_OwnerIdOrderByEndTimeDesc(LocalDateTime.now(), item.getId(), userId).orElse(null),
                             bookingStorage
-                                    .findFirstByStartTimeAfterAndItemIdAndItem_OwnerIdOrderByStartTime(LocalDateTime.now(), item.getId(), userId).orElse(null)));
+                                    .findFirstByStartTimeAfterAndItemIdAndItem_OwnerIdAndStatusOrderByStartTime(LocalDateTime.now(), item.getId(), userId, APPROVED).orElse(null),
+                            commentsStorage.findAllByItemId(item.getId()).stream().map(CommentMapper::toCommentsDTO).collect(Collectors.toList())));
 
         }
         return newItem;
@@ -110,16 +115,14 @@ public class ItemService implements Serializable {
 
     }
 
-    public Comments addComment(Long userId, Long itemId, String text) {
+    public Comments addComment(Long userId, Long itemId, CommentsDTO commentsDTO) {
         Item item = itemStorage.findById(itemId)
-                .orElseThrow(() -> new NotFound404("item not found by id:" + itemId));
+                .orElseThrow(() -> new BadRequest400("item not found by id:" + itemId));
         User user = userStorage.findById(userId)
                 .orElseThrow(() -> new NotFound404("user not found by id:" + userId));
         Booking  booking = bookingStorage.findFirstByBookerIdAndItemIdAndStatusAndEndTimeBefore(userId, itemId, APPROVED, LocalDateTime.now())
-                .orElseThrow(() -> new NotFound404("вы не можете остовлять коментарий!"));
-        Comments comments = new Comments(null, text, item, user, LocalDateTime.now());
-        item.getComments().add(comments);
-        Item newItem = itemStorage.save(item);
+                .orElseThrow(() -> new BadRequest400("вы не можете остовлять коментарий!"));
+        Comments comments = commentsStorage.save(new Comments(null, commentsDTO.getText(), itemId, user, LocalDateTime.now()));
         return comments;
 
 
