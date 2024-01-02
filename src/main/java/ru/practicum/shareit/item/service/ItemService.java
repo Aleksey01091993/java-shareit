@@ -11,6 +11,7 @@ import ru.practicum.shareit.item.coments.mapper.CommentMapper;
 import ru.practicum.shareit.item.coments.model.Comments;
 import ru.practicum.shareit.item.coments.storage.CommentsStorage;
 import ru.practicum.shareit.item.dto.ItemDTO;
+import ru.practicum.shareit.item.dto.ItemResponseDTO;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemStorage;
@@ -46,15 +47,15 @@ public class ItemService implements Serializable {
         this.commentsStorage = commentsStorage;
     }
 
-    public Item create(ItemDTO item, Long userId) {
+    public Item create(ItemResponseDTO item, Long userId) {
         User user = userStorage.findById(userId)
                 .orElseThrow(() -> new NotFound404("user not found by id: " + userId));
 
-        Item itemOne = itemStorage.save(ItemMapper.toItem(item, user));
-        return ItemMapper.toItemDto(itemOne);
+        Item itemOne = itemStorage.save(ItemMapper.toItem(null, item, null, null, user, null));
+        return itemOne;
     }
 
-    public Item update(ItemDTO item, Long userId, Long itemId) {
+    public Item update(ItemResponseDTO item, Long userId, Long itemId) {
         Item itemNew = itemStorage.findById(itemId)
                 .orElseThrow(() -> new NotFound404("item not found by id:" + itemId));
 
@@ -79,12 +80,18 @@ public class ItemService implements Serializable {
     public Item get(Long itemId, Long ownerId) {
         Item item = itemStorage.findById(itemId)
                 .orElseThrow(() -> new NotFound404("item not found by id:" + itemId));
-        return ItemMapper.toItemBookerDTO(item,
+        Item itemNew = ItemMapper.toItem(
+                itemId,
+                ItemMapper.toItemResponseDto(item),
                 bookingStorage
                         .findFirstByEndTimeBeforeAndItemIdAndItem_OwnerIdOrderByEndTimeDesc(LocalDateTime.now(), itemId, ownerId).orElse(null),
                 bookingStorage
                         .findFirstByStartTimeAfterAndItemIdAndItem_OwnerIdAndStatusOrderByStartTime(LocalDateTime.now(), itemId, ownerId, APPROVED).orElse(null),
-                commentsStorage.findAllByItemId(itemId).stream().map(CommentMapper::toCommentsDTO).collect(Collectors.toList()));
+                item.getOwner(),
+                commentsStorage.
+                        findAllByItemId(itemId)
+                );
+        return itemNew;
 
     }
 
@@ -94,12 +101,15 @@ public class ItemService implements Serializable {
         List<Item> newItem = new ArrayList<>();
         for (Item item : items) {
             newItem.add(
-                    ItemMapper.toItemBookerDTO(item,
+                    ItemMapper.toItem(
+                            item.getId(),
+                            ItemMapper.toItemResponseDto(item),
                             bookingStorage
                                     .findFirstByEndTimeBeforeAndItemIdAndItem_OwnerIdOrderByEndTimeDesc(LocalDateTime.now(), item.getId(), userId).orElse(null),
                             bookingStorage
                                     .findFirstByStartTimeAfterAndItemIdAndItem_OwnerIdAndStatusOrderByStartTime(LocalDateTime.now(), item.getId(), userId, APPROVED).orElse(null),
-                            commentsStorage.findAllByItemId(item.getId()).stream().map(CommentMapper::toCommentsDTO).collect(Collectors.toList())));
+                            item.getOwner(),
+                            commentsStorage.findAllByItemId(item.getId())));
 
         }
         return newItem;
@@ -109,8 +119,23 @@ public class ItemService implements Serializable {
         if (search == null || search.isEmpty()) {
             return new ArrayList<>();
         } else {
-            return itemStorage
+            List<Item> items = itemStorage
                     .findAllByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndAvailable(search, search, true);
+            List<Item> newItem = new ArrayList<>();
+            for (Item item : items) {
+                newItem.add(
+                        ItemMapper.toItem(
+                                item.getId(),
+                                ItemMapper.toItemResponseDto(item),
+                                bookingStorage
+                                        .findFirstByEndTimeBeforeAndItemIdAndItem_OwnerIdOrderByEndTimeDesc(LocalDateTime.now(), item.getId(), item.getOwner().getId()).orElse(null),
+                                bookingStorage
+                                        .findFirstByStartTimeAfterAndItemIdAndItem_OwnerIdAndStatusOrderByStartTime(LocalDateTime.now(), item.getId(), item.getOwner().getId(), APPROVED).orElse(null),
+                                item.getOwner(),
+                                commentsStorage.findAllByItemId(item.getId())));
+
+            }
+            return newItem;
         }
 
     }

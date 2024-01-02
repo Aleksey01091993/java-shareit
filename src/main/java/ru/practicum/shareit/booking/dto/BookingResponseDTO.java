@@ -11,10 +11,8 @@ import ru.practicum.shareit.booking.model.Booking;
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
 @Data
-public class BookingCreationDTO extends Booking {
-    private Long id;
+public class BookingResponseDTO {
     private Long itemId;
     @FutureOrPresent
     @NotNull
@@ -22,5 +20,4 @@ public class BookingCreationDTO extends Booking {
     @Future
     @NotNull
     private LocalDateTime end;
-
 }

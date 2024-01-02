@@ -9,6 +9,7 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import ru.practicum.shareit.item.coments.DTO.CommentsDTO;
 import ru.practicum.shareit.item.coments.model.Comments;
+import ru.practicum.shareit.item.dto.BookingToItem;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
@@ -30,20 +31,13 @@ public class Item implements Serializable {
     private String name;
     private String description;
     private Boolean available;
+    @Transient
+    private BookingToItem lastBooking;
+    @Transient
+    private BookingToItem nextBooking;
     @ManyToOne
     private User owner;
-    @ManyToOne
-    private ItemRequest request;
     @OneToMany(cascade = CascadeType.ALL)
     private List<Comments> comments;
 
-
-    public Item(String name, String description, Boolean available, User owner, ItemRequest request) {
-        this.name = name;
-        this.description = description;
-        this.available = available;
-        this.owner = owner;
-        this.request = request;
-
-    }
 }

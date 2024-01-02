@@ -10,6 +10,7 @@ import ru.practicum.shareit.exception.NotFound404;
 import ru.practicum.shareit.item.coments.DTO.CommentsDTO;
 import ru.practicum.shareit.item.coments.mapper.CommentMapper;
 import ru.practicum.shareit.item.dto.ItemDTO;
+import ru.practicum.shareit.item.dto.ItemResponseDTO;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
@@ -32,52 +33,57 @@ public class ItemController {
     }
 
     @PostMapping
-    public Item itemCreateRequestDTO(@RequestBody @Valid ItemDTO item,
-                                     @RequestHeader("X-Sharer-User-Id") Long userId) throws NotFound404
+    public ItemDTO itemCreateRequestDTO(@RequestBody @Valid ItemResponseDTO item,
+                                        @RequestHeader("X-Sharer-User-Id") Long userId)
     {
         log.info("Пришел POST запрос /items с телом: {}", item);
-        ItemDTO itemResponseDto = ItemMapper.toItemDto(service.create(item, userId));
+        ItemDTO itemResponseDto = ItemMapper.toItemDTO(service.create(item, userId), null, null, null);
         log.info("Отправлен ответ для POST запроса /items с телом: {}", itemResponseDto);
         return itemResponseDto;
     }
 
     @PatchMapping("/{itemId}")
-    public Item itemUpdateDTO(@RequestBody @Nullable ItemDTO item,
+    public ItemDTO itemUpdateDTO(@RequestBody @Nullable ItemResponseDTO item,
                           @RequestHeader("X-Sharer-User-Id") Long userId,
                           @PathVariable Long itemId)
     {
         log.info("Пришел PATH запрос /items/{} с телом: {}", itemId, item);
-        ItemDTO itemResponseDto = ItemMapper.toItemDto(service.update(item, userId, itemId));
+        ItemDTO itemResponseDto = ItemMapper.toItemDTO(service.update(item, userId, itemId), null, null, null);
         log.info("Отправлен ответ для PATH запроса /items/{} с телом: {}", itemId, itemResponseDto);
         return itemResponseDto;
     }
 
     @GetMapping("/{itemId}")
-    public Item itemGetDTO(@PathVariable Long itemId,
+    public ItemDTO itemGetDTO(@PathVariable Long itemId,
                            @RequestHeader ("X-Sharer-User-Id") Long userId)
     {
         log.info("Пришел GET запрос /items/{}", itemId);
-        Item itemResponseDto = service.get(itemId, userId);
+        Item item = service.get(itemId, userId);
+        ItemDTO itemResponseDto = ItemMapper.toItemDTO(item, item.getLastBooking(), item.getNextBooking(), item.getComments());
         log.info("Отправлен ответ для GET запроса /items/{} с телом: {}", itemId, itemResponseDto);
         return itemResponseDto;
     }
 
     @GetMapping
-    public List<Item> itemsGetAllDTO(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<ItemDTO> itemsGetAllDTO(@RequestHeader("X-Sharer-User-Id") Long userId) {
         log.info("Пришел GET запрос /items");
-        List<Item> itemResponseDto = service.getAll(userId);
+        List<Item> itemDto = service.getAll(userId);
+        List<ItemDTO> itemResponseDto = itemDto.stream()
+                .map(o1 -> ItemMapper.toItemDTO(o1, o1.getLastBooking(), o1.getNextBooking(), o1.getComments()))
+                .collect(Collectors.toList());
         log.info("Отправлен ответ для GET запроса /items с телом: {}", itemResponseDto);
         return itemResponseDto;
     }
 
     @GetMapping("/search")
-    public List<Item> itemsGetAllSearchDTO(@RequestParam String text) {
+    public List<ItemDTO> itemsGetAllSearchDTO(@RequestParam String text) {
         log.info("Пришел GET запрос /items/search?text={}", text);
-        List<Item> itemDTOList = service.getAllSearch(text).stream()
-                .map(ItemMapper::toItemDto)
+        List<Item> itemDto = service.getAllSearch(text);
+        List<ItemDTO> itemResponseDto = itemDto.stream()
+                .map(o1 -> ItemMapper.toItemDTO(o1, o1.getLastBooking(), o1.getNextBooking(), o1.getComments()))
                 .collect(Collectors.toList());
-        log.info("Отправлен ответ для GET запроса /items/search?text={} с телом: {}", text, itemDTOList);
-        return itemDTOList;
+        log.info("Отправлен ответ для GET запроса /items/search?text={} с телом: {}", text, itemResponseDto);
+        return itemResponseDto;
     }
 
     @PostMapping("/{itemId}/comment")

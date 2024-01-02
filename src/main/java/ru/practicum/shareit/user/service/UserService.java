@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.EmailException;
 import ru.practicum.shareit.exception.NotFound404;
 import ru.practicum.shareit.user.dto.UserDTO;
+import ru.practicum.shareit.user.dto.UserResponseDTO;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
@@ -21,11 +22,11 @@ public class UserService {
         this.storage = storage;
     }
 
-    public User create(UserDTO user) {
+    public User create(UserResponseDTO user) {
         return storage.save(UserMapper.toUser(user));
     }
 
-    public User update(UserDTO user, Long userId) {
+    public User update(UserResponseDTO user, Long userId) {
         User newUser = get(userId);
         if (user.getName() != null) newUser.setName(user.getName());
         if (user.getEmail() != null) newUser.setEmail(user.getEmail());

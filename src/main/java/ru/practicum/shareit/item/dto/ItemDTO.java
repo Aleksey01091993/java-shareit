@@ -1,25 +1,25 @@
 package ru.practicum.shareit.item.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import ru.practicum.shareit.item.coments.DTO.CommentsDTO;
+import ru.practicum.shareit.item.coments.model.Comments;
 import ru.practicum.shareit.item.model.Item;
 
+import java.util.List;
 
-@EqualsAndHashCode(callSuper = true)
+
 @Data
 @AllArgsConstructor
-public class ItemDTO extends Item {
+public class ItemDTO {
     private Long id;
-    @NotNull
-    @NotBlank
     private String name;
-    @NotNull
-    @NotBlank
     private String description;
-    @NotNull
     private Boolean available;
-    private Long requestId;
+    private BookingToItem lastBooking;
+    private BookingToItem nextBooking;
+    private List<CommentsDTO> comments;
+
+
 }
