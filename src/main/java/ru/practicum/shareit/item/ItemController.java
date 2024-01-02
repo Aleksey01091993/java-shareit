@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.exception.NotFound404;
 import ru.practicum.shareit.item.coments.DTO.CommentsDTO;
 import ru.practicum.shareit.item.coments.mapper.CommentMapper;
 import ru.practicum.shareit.item.dto.ItemDTO;
@@ -92,7 +91,9 @@ public class ItemController {
             @PathVariable Long itemId,
             @RequestBody @Valid CommentsDTO commentsDTO
     ) {
+        log.info("Пришел POST запрос /items/{}/comment с телом: {}", itemId, commentsDTO);
         CommentsDTO commentResponseDTO = CommentMapper.toCommentsDTO(service.addComment(userId, itemId, commentsDTO));
+        log.info("Отправлен ответ для POST запроса /items/{}/comment с телом: {}", itemId, commentResponseDTO);
         return commentResponseDTO;
     }
 

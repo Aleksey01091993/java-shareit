@@ -2,10 +2,7 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import ru.practicum.shareit.item.coments.DTO.CommentsDTO;
-import ru.practicum.shareit.item.coments.model.Comments;
-import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
 

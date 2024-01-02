@@ -1,10 +1,9 @@
 package ru.practicum.shareit.item.mapper;
 
-import ru.practicum.shareit.item.coments.DTO.CommentsDTO;
-import ru.practicum.shareit.item.coments.mapper.CommentMapper;
-import ru.practicum.shareit.item.dto.BookingToItem;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.item.coments.mapper.CommentMapper;
 import ru.practicum.shareit.item.coments.model.Comments;
+import ru.practicum.shareit.item.dto.BookingToItem;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.dto.ItemResponseDTO;
 import ru.practicum.shareit.item.model.Item;

@@ -7,10 +7,8 @@ import ru.practicum.shareit.booking.storage.BookingStorage;
 import ru.practicum.shareit.exception.BadRequest400;
 import ru.practicum.shareit.exception.NotFound404;
 import ru.practicum.shareit.item.coments.DTO.CommentsDTO;
-import ru.practicum.shareit.item.coments.mapper.CommentMapper;
 import ru.practicum.shareit.item.coments.model.Comments;
 import ru.practicum.shareit.item.coments.storage.CommentsStorage;
-import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.dto.ItemResponseDTO;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
@@ -22,7 +20,6 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static ru.practicum.shareit.booking.status.Status.APPROVED;
 
