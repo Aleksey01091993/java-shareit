@@ -15,16 +15,20 @@ import java.util.List;
  */
 @Data
 @Entity
-@Table
+@Table(name = "item_request")
 @NoArgsConstructor
 @AllArgsConstructor
 public class ItemRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
+    @Column(name = "description")
     private String description;
     @OneToOne
+    @JoinColumn(name = "requestor_id")
     private User requestor;
+    @Column(name = "create_time")
     private LocalDateTime create;
     @Transient
     private List<Comments> comments;

@@ -10,9 +10,8 @@ import ru.practicum.shareit.item.coments.model.Comments;
 import java.time.LocalDateTime;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
-public class CommentsDTO extends Comments {
+public class CommentsDTO {
     private Long id;
     @NotNull
     @NotBlank

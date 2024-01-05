@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table
+@Table(name = "comments")
 @DynamicUpdate
 @DynamicInsert
 @AllArgsConstructor
@@ -21,10 +21,15 @@ import java.time.LocalDateTime;
 public class Comments implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
+    @Column(name = "text")
     private String text;
+    @Column(name = "item_id")
     private Long itemId;
     @ManyToOne
+    @JoinColumn(name = "author_id")
     private User author;
+    @Column(name = "created_time")
     private LocalDateTime created;
 }
