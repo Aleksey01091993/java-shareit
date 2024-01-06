@@ -1,66 +1,88 @@
-create table public.booking
+create table booking
 (
-    id         bigint primary key not null default nextval('booking_id_seq'::regclass),
-    end_time   timestamp(6) without time zone,
-    start_time timestamp(6) without time zone,
-    status     character varying(255),
     booker_id  bigint,
+    end_time   timestamp(6),
+    id         bigserial not null,
     item_id    bigint,
-    foreign key (booker_id) references public.users (id)
-        match simple on update no action on delete no action,
-    foreign key (item_id) references public.item (id)
-        match simple on update no action on delete no action
+    start_time timestamp(6),
+    status     varchar(255) check (status in ('WAITING', 'APPROVED', 'REJECTED', 'CANCELED')),
+    primary key (id)
 );
 
-create table public.comments
+create table comments
 (
-    id           bigint primary key not null default nextval('comments_id_seq'::regclass),
-    created_time timestamp(6) without time zone,
-    item_id      bigint,
-    text         character varying(255),
     author_id    bigint,
-    foreign key (author_id) references public.users (id)
-        match simple on update no action on delete no action
+    created_time timestamp(6),
+    id           bigserial not null,
+    item_id      bigint,
+    text         varchar(255),
+    primary key (id)
 );
 
-create table public.item
+create table item
 (
-    id          bigint primary key not null default nextval('item_id_seq'::regclass),
     available   boolean,
-    description character varying(255),
-    name        character varying(255),
+    id          bigserial not null,
     owner_id    bigint,
-    foreign key (owner_id) references public.users (id)
-        match simple on update no action on delete no action
+    description varchar(255),
+    name        varchar(255),
+    primary key (id)
 );
 
-create table public.item_comments
+create table item_comments
 (
-    item_id     bigint not null,
-    comments_id bigint not null,
-    foreign key (item_id) references public.item (id)
-        match simple on update no action on delete no action,
-    foreign key (comments_id) references public.comments (id)
-        match simple on update no action on delete no action
+    comments_id bigint not null unique,
+    item_id     bigint not null
 );
-create unique index uk_rjhhf8wbmd564pr5ty0kkvgfw on item_comments using btree (comments_id);
 
-create table public.item_request
+create table item_request
 (
-    id           bigint primary key not null default nextval('item_request_id_seq'::regclass),
-    create_time  timestamp(6) without time zone,
-    description  character varying(255),
-    requestor_id bigint,
-    foreign key (requestor_id) references public.users (id)
-        match simple on update no action on delete no action
+    create_time  timestamp(6),
+    id           bigserial not null,
+    requestor_id bigint unique,
+    description  varchar(255),
+    primary key (id)
 );
-create unique index uk_1qsp14ugfofgo0q3ojuwk5w5u on item_request using btree (requestor_id);
 
-create table public.users
+create table users
 (
-    id    bigint primary key not null default nextval('users_id_seq'::regclass),
-    email character varying(255),
-    name  character varying(255)
+    id    bigserial not null,
+    email varchar(255) unique,
+    name  varchar(255),
+    primary key (id)
 );
-create unique index uk_6dotkott2kjsp8vw4d0m25fb7 on users using btree (email);
 
+alter table if exists booking
+    add constraint FKf8qqd65qc077mrbdog4r9ldc3
+        foreign key (booker_id)
+            references users;
+
+alter table if exists booking
+    add constraint FKikwxul5wtb263vqoggtklsy5w
+        foreign key (item_id)
+            references item;
+
+alter table if exists comments
+    add constraint FKn2na60ukhs76ibtpt9burkm27
+        foreign key (author_id)
+            references users;
+
+alter table if exists item
+    add constraint FKquc2sh4rh6sc3rcffk9jxs2sg
+        foreign key (owner_id)
+            references users;
+
+alter table if exists item_comments
+    add constraint FKkh5r00mtikrgnggc5skiu4yjj
+        foreign key (comments_id)
+            references comments;
+
+alter table if exists item_comments
+    add constraint FKd0q60hv195l3lbow9bny6637d
+        foreign key (item_id)
+            references item;
+
+alter table if exists item_request
+    add constraint FKns8uiypw7utnbnbdci8nn738a
+        foreign key (requestor_id)
+            references users;
