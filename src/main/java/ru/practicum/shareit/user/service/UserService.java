@@ -3,7 +3,7 @@ package ru.practicum.shareit.user.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.EmailException;
-import ru.practicum.shareit.exception.NotFound404;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserResponseDTO;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -35,7 +35,7 @@ public class UserService {
 
     public User get(Long userId) {
         return storage.findById(userId)
-                .orElseThrow(() -> new NotFound404("user not found by id:" + userId));
+                .orElseThrow(() -> new NotFoundException("user not found by id:" + userId));
     }
 
     public User delete(Long id) {

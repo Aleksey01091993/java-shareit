@@ -3,12 +3,12 @@ package ru.practicum.shareit.booking.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.dto.BookingResponseDTO;
+import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.storage.BookingStorage;
-import ru.practicum.shareit.exception.BadRequest400;
-import ru.practicum.shareit.exception.InternalServerError500;
-import ru.practicum.shareit.exception.NotFound404;
+import ru.practicum.shareit.exception.BadRequestException;
+import ru.practicum.shareit.exception.InternalServerErrorException;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemStorage;
 import ru.practicum.shareit.user.model.User;
@@ -35,66 +35,64 @@ public class BookingService {
         this.bookingStorage = bookingStorage;
     }
 
-    public Booking create(BookingResponseDTO bookingResponseDTO, Long userId) {
-        Item item = itemStorage.findById(bookingResponseDTO.getItemId())
-                .orElseThrow(() -> new NotFound404("item not found by id: " + bookingResponseDTO.getItemId()));
-        if (bookingResponseDTO.getStart().isAfter(bookingResponseDTO.getEnd()) ||
-                bookingResponseDTO.getStart().equals(bookingResponseDTO.getEnd())) {
-            throw new BadRequest400("дата окончания позже даты начала");
+    public Booking create(BookingRequestDto bookingRequestDto, Long userId) {
+        Item item = itemStorage.findById(bookingRequestDto.getItemId())
+                .orElseThrow(() -> new NotFoundException("item not found by id: " + bookingRequestDto.getItemId()));
+        if (bookingRequestDto.getStart().isAfter(bookingRequestDto.getEnd()) ||
+                bookingRequestDto.getStart().equals(bookingRequestDto.getEnd())) {
+            throw new BadRequestException("дата окончания позже даты начала");
         }
         if (!item.getAvailable()) {
-            throw new BadRequest400("вещь недоступна для бронирования");
+            throw new BadRequestException("вещь недоступна для бронирования");
         }
 
         User user = userStorage.findById(userId)
-                .orElseThrow(() -> new NotFound404("user not found by id:" + userId));
+                .orElseThrow(() -> new NotFoundException("user not found by id:" + userId));
         if (userId.equals(item.getOwner().getId())) {
-            throw new NotFound404("Владелец вещи не может ее забронировать");
+            throw new NotFoundException("Владелец вещи не может ее забронировать");
         }
 
         Booking booking = new Booking(
                 null,
-                bookingResponseDTO.getStart(),
-                bookingResponseDTO.getEnd(),
+                bookingRequestDto.getStart(),
+                bookingRequestDto.getEnd(),
                 item,
                 user,
                 WAITING
         );
         Booking newBooking = bookingStorage.save(booking);
-        return booking;
+        return newBooking;
 
 
     }
 
     public Booking approved(Long bookingId, Long userId, Boolean approved) {
         Booking newBooking = bookingStorage.findById(bookingId)
-                .orElseThrow(() -> new NotFound404("booking not found by id: " + bookingId));
+                .orElseThrow(() -> new NotFoundException("booking not found by id: " + bookingId));
         userStorage.findById(userId)
-                .orElseThrow(() -> new NotFound404("owner not found by id:" + userId));
-        if (newBooking.getItem().getOwner().getId().equals(userId)) {
-            if (newBooking.getStatus() != WAITING) {
-                throw new BadRequest400("status error");
-            }
-            if (approved) {
-                newBooking.setStatus(APPROVED);
-            } else {
-                newBooking.setStatus(REJECTED);
-            }
-            Booking oneBooking = bookingStorage.save(newBooking);
-            return oneBooking;
-        } else {
-            throw new NotFound404("owner not found by id:" + userId);
+                .orElseThrow(() -> new NotFoundException("owner not found by id:" + userId));
+        if (!newBooking.getItem().getOwner().getId().equals(userId)) {
+            throw new NotFoundException("owner not found by id:" + userId);
         }
+        if (newBooking.getStatus() != WAITING) {
+            throw new BadRequestException("status error");
+        }
+        if (approved) {
+            newBooking.setStatus(APPROVED);
+        } else {
+            newBooking.setStatus(REJECTED);
+        }
+        return bookingStorage.save(newBooking);
     }
 
     public Booking get(Long bookingId, Long userOrOwnerId) {
         Booking newBooking = bookingStorage.findById(bookingId)
-                .orElseThrow(() -> new NotFound404("booking not found by id: " + bookingId));
+                .orElseThrow(() -> new NotFoundException("booking not found by id: " + bookingId));
         if (newBooking.getItem().getOwner().getId().equals(userOrOwnerId) ||
                 newBooking.getBooker().getId().equals(userOrOwnerId)) {
             return newBooking;
         } else {
-            throw new NotFound404("user or owner not found by id: " + userOrOwnerId);
+            throw new NotFoundException("user or owner not found by id: " + userOrOwnerId);
         }
     }
 
@@ -118,7 +116,7 @@ public class BookingService {
             return bookingStorage
                     .findByBooker_IdAndStatusOrderByStartTimeDesc(bookerId, REJECTED);
         } else {
-            throw new InternalServerError500("Unknown state: " + state);
+            throw new InternalServerErrorException("Unknown state: " + state);
         }
 
     }
@@ -127,7 +125,7 @@ public class BookingService {
 
     public List<Booking> getAllOwnerId(Long ownerId, String state) {
         userStorage.findById(ownerId)
-                .orElseThrow(() -> new InternalServerError500("owner not found by id:" + ownerId));
+                .orElseThrow(() -> new InternalServerErrorException("owner not found by id:" + ownerId));
         if (state == null || state.equals("ALL")) {
             return bookingStorage.findByItem_OwnerIdOrderByStartTimeDesc(ownerId);
         } else if (state.equals("CURRENT")) {
@@ -146,7 +144,7 @@ public class BookingService {
             return bookingStorage
                     .findByItem_OwnerIdAndStatusOrderByStartTimeDesc(ownerId, REJECTED);
         } else {
-            throw new InternalServerError500("Unknown state: " + state);
+            throw new InternalServerErrorException("Unknown state: " + state);
         }
     }
 

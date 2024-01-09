@@ -13,7 +13,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse badRequest(final BadRequest400 e) {
+    public ErrorResponse badRequest(final BadRequestException e) {
         log.info(e.getMessage());
         return new ErrorResponse(e.getMessage());
     }
@@ -27,14 +27,14 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse notFound(final NotFound404 e) {
+    public ErrorResponse notFound(final NotFoundException e) {
         log.info(e.getMessage());
         return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse internalServerError(final InternalServerError500 e) {
+    public ErrorResponse internalServerError(final InternalServerErrorException e) {
         log.info(e.getMessage());
         return new ErrorResponse(e.getMessage());
     }

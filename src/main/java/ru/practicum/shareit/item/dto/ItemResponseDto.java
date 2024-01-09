@@ -9,7 +9,7 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class ItemDTO {
+public class ItemResponseDto {
     private Long id;
     private String name;
     private String description;
@@ -17,6 +17,4 @@ public class ItemDTO {
     private BookingToItem lastBooking;
     private BookingToItem nextBooking;
     private List<CommentsDTO> comments;
-
-
 }
