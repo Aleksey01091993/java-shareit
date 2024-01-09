@@ -4,15 +4,13 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import ru.practicum.shareit.item.model.Item;
+import lombok.NoArgsConstructor;
 
 
-@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
-public class ItemDTO extends Item {
-    private Long id;
+@NoArgsConstructor
+public class ItemCreateRequestDto {
     @NotNull
     @NotBlank
     private String name;
@@ -21,5 +19,4 @@ public class ItemDTO extends Item {
     private String description;
     @NotNull
     private Boolean available;
-    private Long requestId;
 }
