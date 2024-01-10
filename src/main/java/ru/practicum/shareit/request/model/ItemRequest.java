@@ -29,7 +29,5 @@ public class ItemRequest {
     @JoinColumn(name = "requestor_id")
     private User requestor;
     @Column(name = "create_time")
-    private LocalDateTime create;
-    @Transient
-    private List<Comments> comments;
+    private LocalDateTime created;
 }

@@ -9,6 +9,7 @@ import org.hibernate.annotations.DynamicUpdate;
 import ru.practicum.shareit.item.coments.DTO.CommentsDTO;
 import ru.practicum.shareit.item.coments.model.Comments;
 import ru.practicum.shareit.item.dto.BookingToItem;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import java.io.Serializable;
@@ -40,6 +41,9 @@ public class Item implements Serializable {
     @ManyToOne
     @JoinColumn(name = "owner_id")
     private User owner;
+    @ManyToOne
+    @JoinColumn(name = "request")
+    private ItemRequest request;
     @OneToMany(fetch = FetchType.EAGER)
     private List<Comments> comments;
 
