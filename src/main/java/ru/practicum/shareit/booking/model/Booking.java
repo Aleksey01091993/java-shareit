@@ -7,30 +7,39 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import ru.practicum.shareit.booking.status.Status;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 
 @Data
 @Entity
-@Table
+@Table(name = "booking")
 @DynamicInsert
 @DynamicUpdate
 @NoArgsConstructor
 @AllArgsConstructor
-public class Booking {
+public class Booking implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
+    @Column(name = "start_time")
     private LocalDateTime startTime;
+    @Column(name = "end_time")
     private LocalDateTime endTime;
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "item_id")
     private Item item;
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "booker_id")
     private User booker;
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private Status status;
 
 
 }
