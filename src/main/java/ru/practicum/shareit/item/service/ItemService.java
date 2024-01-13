@@ -13,6 +13,8 @@ import ru.practicum.shareit.item.dto.ItemCreateRequestDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemStorage;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.storage.ItemRequestStorage;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 
@@ -31,24 +33,29 @@ public class ItemService implements Serializable {
     private final BookingStorage bookingStorage;
 
     private final CommentsStorage commentsStorage;
+    private final ItemRequestStorage  itemRequestStorage;
 
 
     public ItemService(@Autowired ItemStorage itemStorage,
                        @Autowired UserStorage userStorage,
                        @Autowired BookingStorage bookingStorage,
-                       @Autowired CommentsStorage commentsStorage
+                       @Autowired CommentsStorage commentsStorage,
+                       @Autowired ItemRequestStorage  itemRequestStorage
     ) {
         this.itemStorage = itemStorage;
         this.userStorage = userStorage;
         this.bookingStorage = bookingStorage;
         this.commentsStorage = commentsStorage;
+        this.itemRequestStorage = itemRequestStorage;
     }
 
     public Item create(ItemCreateRequestDto item, Long userId) {
         User user = userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("user not found by id: " + userId));
+        ItemRequest itemRequest = item.getRequestId() != null ? itemRequestStorage.findById(item.getRequestId())
+                .orElse(null) : null;
 
-        return itemStorage.save(ItemMapper.toItem(null, item, user));
+        return itemStorage.save(ItemMapper.toItem(null, item, user, itemRequest));
     }
 
     public Item update(ItemCreateRequestDto item, Long userId, Long itemId) {
@@ -60,8 +67,10 @@ public class ItemService implements Serializable {
         }
         User user = userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("user not found by id: " + userId));
+        ItemRequest itemRequest = item.getRequestId() != null ? itemRequestStorage.findById(item.getRequestId())
+                .orElse(null) : null;
 
-        return itemStorage.save(ItemMapper.toItem(itemNew, item, user));
+        return itemStorage.save(ItemMapper.toItem(itemNew, item, user, itemRequest));
     }
 
     public Item get(Long itemId, Long ownerId) {
@@ -80,7 +89,8 @@ public class ItemService implements Serializable {
                                 .findFirstByStartTimeAfterAndItemIdAndItem_OwnerIdAndStatusOrderByStartTime(LocalDateTime.now(), itemId, ownerId, APPROVED).orElse(null)
                 )
         );
-        return ItemMapper.toItem(item, ItemMapper.toItemResponseDto(item), item.getOwner());
+
+        return ItemMapper.toItem(item, ItemMapper.toItemResponseDto(item), item.getOwner(), item.getRequest());
     }
 
     public List<Item> getAll(Long userId) {
@@ -102,7 +112,7 @@ public class ItemService implements Serializable {
                     )
             );
             newItem.add(
-                    ItemMapper.toItem(item, ItemMapper.toItemResponseDto(item), item.getOwner()));
+                    ItemMapper.toItem(item, ItemMapper.toItemResponseDto(item), item.getOwner(), item.getRequest()));
 
         }
         return newItem;
@@ -130,7 +140,7 @@ public class ItemService implements Serializable {
                         )
                 );
                 newItem.add(
-                        ItemMapper.toItem(item, ItemMapper.toItemResponseDto(item), item.getOwner()));
+                        ItemMapper.toItem(item, ItemMapper.toItemResponseDto(item), item.getOwner(), item.getRequest()));
 
             }
             return newItem;

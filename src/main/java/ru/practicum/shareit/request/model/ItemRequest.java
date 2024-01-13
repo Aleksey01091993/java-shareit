@@ -25,9 +25,11 @@ public class ItemRequest {
     private Long id;
     @Column(name = "description")
     private String description;
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "requestor_id")
     private User requestor;
     @Column(name = "create_time")
     private LocalDateTime created;
+    @Transient
+    List<ItemRequestToItem> items;
 }

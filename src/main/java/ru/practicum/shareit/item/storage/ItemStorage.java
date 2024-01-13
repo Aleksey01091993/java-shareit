@@ -11,4 +11,5 @@ import java.util.List;
 public interface ItemStorage extends JpaRepository<Item, Long> {
     List<Item> findAllByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndAvailable(String search, String search1, Boolean in);
     List<Item> findAllByOwnerId(Long id);
+    List<Item> findByRequest_Id(Long id);
 }
