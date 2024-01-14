@@ -64,25 +64,54 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemResponseDto> itemsGetAllDTO(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        log.info("Пришел GET запрос /items");
-        List<Item> itemDto = service.getAll(userId);
-        List<ItemResponseDto> itemResponseDto = itemDto.stream()
-                .map(o1 -> ItemMapper.toItemDTO(o1, o1.getComments()))
-                .collect(Collectors.toList());
-        log.info("Отправлен ответ для GET запроса /items с телом: {}", itemResponseDto);
-        return itemResponseDto;
+    public List<ItemResponseDto> itemsGetAllDTO(
+            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @RequestParam @Nullable Integer from,
+            @RequestParam @Nullable Integer size
+    ) {
+        if (from != null && size != null) {
+            log.info("Пришел GET запрос /items?from={}&size={}", from, size);
+            List<Item> itemDto = service.getAllFromAndSize(userId, from, size);
+            List<ItemResponseDto> itemResponseDto = itemDto.stream()
+                    .map(o1 -> ItemMapper.toItemDTO(o1, o1.getComments()))
+                    .collect(Collectors.toList());
+            log.info("Отправлен ответ для GET запроса /items?from={}&size={} с телом: {}", from, size, itemResponseDto);
+            return itemResponseDto;
+        } else {
+            log.info("Пришел GET запрос /items");
+            List<Item> itemDto = service.getAll(userId);
+            List<ItemResponseDto> itemResponseDto = itemDto.stream()
+                    .map(o1 -> ItemMapper.toItemDTO(o1, o1.getComments()))
+                    .collect(Collectors.toList());
+            log.info("Отправлен ответ для GET запроса /items с телом: {}", itemResponseDto);
+            return itemResponseDto;
+        }
     }
 
     @GetMapping("/search")
-    public List<ItemResponseDto> itemsGetAllSearchDTO(@RequestParam String text) {
-        log.info("Пришел GET запрос /items/search?text={}", text);
-        List<Item> itemDto = service.getAllSearch(text);
-        List<ItemResponseDto> itemResponseDto = itemDto.stream()
-                .map(o1 -> ItemMapper.toItemDTO(o1, o1.getComments()))
-                .collect(Collectors.toList());
-        log.info("Отправлен ответ для GET запроса /items/search?text={} с телом: {}", text, itemResponseDto);
-        return itemResponseDto;
+    public List<ItemResponseDto> itemsGetAllSearchDTO(
+            @RequestParam @Nullable String text,
+            @RequestParam @Nullable Integer from,
+            @RequestParam @Nullable Integer size
+    ) {
+        if (from != null && size != null) {
+            log.info("Пришел GET запрос /items/search?from={}&size={}", from, size);
+            List<Item> itemDto = service.getAllSearchFromAndSize(from, size);
+            List<ItemResponseDto> itemResponseDto = itemDto.stream()
+                    .map(o1 -> ItemMapper.toItemDTO(o1, o1.getComments()))
+                    .collect(Collectors.toList());
+            log.info("Отправлен ответ для GET запроса /items/search?from={}&size={} с телом: {}", from, size, itemResponseDto);
+            return itemResponseDto;
+        } else {
+            log.info("Пришел GET запрос /items/search?text={}", text);
+            List<Item> itemDto = service.getAllSearch(text);
+            List<ItemResponseDto> itemResponseDto = itemDto.stream()
+                    .map(o1 -> ItemMapper.toItemDTO(o1, o1.getComments()))
+                    .collect(Collectors.toList());
+            log.info("Отправлен ответ для GET запроса /items/search?text={} с телом: {}", text, itemResponseDto);
+            return itemResponseDto;
+        }
+
     }
 
     @PostMapping("/{itemId}/comment")

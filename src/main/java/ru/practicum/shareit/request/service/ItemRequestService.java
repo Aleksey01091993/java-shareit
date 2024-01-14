@@ -2,7 +2,6 @@ package ru.practicum.shareit.request.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
@@ -10,12 +9,12 @@ import ru.practicum.shareit.item.storage.ItemStorage;
 import ru.practicum.shareit.request.dto.ItemRequestCreateRequestDto;
 import ru.practicum.shareit.request.mapper.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.model.ItemRequestToItem;
 import ru.practicum.shareit.request.storage.ItemRequestStorage;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,30 +38,48 @@ public class ItemRequestService {
         return itemRequestStorage.save(ItemRequestMapper.toItemRequest(itemRequest, user, null));
     }
 
-    public List<ItemRequest> findById(Long userId) {
+    public List<ItemRequest> findByAll(Long userId) {
         userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("user not found by id:" + userId));
-        List<ItemRequest> itemRequests = itemRequestStorage.findByRequestor_IdOrderByCreatedAsc(userId).stream()
+        return itemRequestStorage.findByRequestor_IdOrderByCreatedAsc(userId).stream()
                 .peek(o1 -> o1.setItems(
                         itemStorage.findByRequest_Id(o1.getId()).stream()
                                 .map(ItemRequestMapper::toItemRequestToItem)
                                 .collect(Collectors.toList())
                 ))
                 .collect(Collectors.toList());
-        return itemRequests;
     }
 
-    public List<ItemRequest> getAllFrom(Long userId ,Integer from, Integer size) {
-        List<Item> userItems = itemStorage.findAllByOwnerId(userId);
-        Collection<String> containers = new ArrayList<>();
-        for (Item item : userItems) {
-            containers.add(item.getName());
-            containers.add(item.getDescription());
+    public List<ItemRequest> getAllFrom(Long userId, Integer from, Integer size) {
+        userStorage.findById(userId)
+                .orElseThrow(() -> new NotFoundException("user not found by id:" + userId));
+        if (from == null || size == null) {
+            return new ArrayList<>();
         }
-        Pageable pageable = PageRequest.of(from, size);
-        List<ItemRequest> test = itemRequestStorage.findByDescriptionIgnoreCaseInOrderByCreatedAsc(containers, pageable);
-        return test;
+        return itemRequestStorage.findByRequestor_IdNotOrderByCreatedAsc(userId, PageRequest.of(from, size))
+                .stream()
+                .peek(o1 -> o1.setItems(
+                        itemStorage.findByRequest_Id(o1.getId()).stream()
+                                .map(ItemRequestMapper::toItemRequestToItem)
+                                .collect(Collectors.toList())
+                ))
+                .collect(Collectors.toList());
     }
+
+    public ItemRequest findById(Long userId, Long requestId) {
+        userStorage.findById(userId)
+                .orElseThrow(() -> new NotFoundException("user not found by id:" + userId));
+
+        ItemRequest itemRequest = itemRequestStorage.findById(requestId)
+                .orElseThrow(() -> new NotFoundException("request not found by id:" + userId));
+
+        itemRequest.setItems(itemStorage.findByRequest_Id(requestId).stream()
+                .map(ItemRequestMapper::toItemRequestToItem)
+                .collect(Collectors.toList()));
+        return itemRequest;
+    }
+
+
 
 
 

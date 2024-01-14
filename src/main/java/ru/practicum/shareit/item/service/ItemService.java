@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.storage.BookingStorage;
@@ -95,7 +97,56 @@ public class ItemService implements Serializable {
 
     public List<Item> getAll(Long userId) {
         List<Item> items = itemStorage
-                .findAllByOwnerId(userId);
+                .findAllByOwnerIdOrderById(userId);
+        List<Item> newItem = new ArrayList<>();
+        for (Item item : items) {
+            item.setComments(commentsStorage.findAllByItemId(item.getId()));
+            item.setLastBooking(
+                    ItemMapper.toBookingToItem(
+                            bookingStorage
+                                    .findFirstByEndTimeBeforeAndItemIdAndItem_OwnerIdOrderByEndTimeDesc(LocalDateTime.now(), item.getId(), item.getOwner().getId()).orElse(null)
+                    )
+            );
+            item.setNextBooking(
+                    ItemMapper.toBookingToItem(
+                            bookingStorage
+                                    .findFirstByStartTimeAfterAndItemIdAndItem_OwnerIdAndStatusOrderByStartTime(LocalDateTime.now(), item.getId(), item.getOwner().getId(), APPROVED).orElse(null)
+                    )
+            );
+            newItem.add(
+                    ItemMapper.toItem(item, ItemMapper.toItemResponseDto(item), item.getOwner(), item.getRequest()));
+
+        }
+        return newItem;
+    }
+
+    public List<Item> getAllFromAndSize(Long userId, Integer from, Integer size) {
+        List<Item> items = itemStorage
+                .findAllByOwnerIdOrderById(userId, PageRequest.of(from, size));
+        List<Item> newItem = new ArrayList<>();
+        for (Item item : items) {
+            item.setComments(commentsStorage.findAllByItemId(item.getId()));
+            item.setLastBooking(
+                    ItemMapper.toBookingToItem(
+                            bookingStorage
+                                    .findFirstByEndTimeBeforeAndItemIdAndItem_OwnerIdOrderByEndTimeDesc(LocalDateTime.now(), item.getId(), item.getOwner().getId()).orElse(null)
+                    )
+            );
+            item.setNextBooking(
+                    ItemMapper.toBookingToItem(
+                            bookingStorage
+                                    .findFirstByStartTimeAfterAndItemIdAndItem_OwnerIdAndStatusOrderByStartTime(LocalDateTime.now(), item.getId(), item.getOwner().getId(), APPROVED).orElse(null)
+                    )
+            );
+            newItem.add(
+                    ItemMapper.toItem(item, ItemMapper.toItemResponseDto(item), item.getOwner(), item.getRequest()));
+
+        }
+        return newItem;
+    }
+
+    public List<Item> getAllSearchFromAndSize(Integer from, Integer size) {
+        Page<Item> items = itemStorage.findAll(PageRequest.of(from, size));
         List<Item> newItem = new ArrayList<>();
         for (Item item : items) {
             item.setComments(commentsStorage.findAllByItemId(item.getId()));

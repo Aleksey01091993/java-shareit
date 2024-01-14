@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.service;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -146,6 +147,17 @@ public class BookingService {
         } else {
             throw new InternalServerErrorException("Unknown state: " + state);
         }
+    }
+
+    public List<Booking> getAllOwnerIdFromAndSize(Long ownerId, Integer from, Integer size){
+        userStorage.findById(ownerId)
+                .orElseThrow(() -> new InternalServerErrorException("owner not found by id:" + ownerId));
+        return bookingStorage.findByItem_OwnerIdOrderByStartTimeDesc(ownerId, PageRequest.of(from, size));
+    }
+    public List<Booking> getAllBookerIdFromAndSize(Long bookerId, Integer from, Integer size) {
+        userStorage.findById(bookerId)
+                .orElseThrow(() -> new InternalServerErrorException("owner not found by id:" + bookerId));
+        return bookingStorage.findByBooker_IdOrderByStartTimeDesc(bookerId, PageRequest.of(from, size));
     }
 
 

@@ -1,11 +1,11 @@
 package ru.practicum.shareit.request;
 
+import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.dto.ItemCreateRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestCreateRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestResponseDto;
 import ru.practicum.shareit.request.mapper.ItemRequestMapper;
@@ -35,19 +35,26 @@ public class ItemRequestController {
     }
 
     @GetMapping
-    public List<ItemRequestResponseDto> findById(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        return itemRequestService.findById(userId).stream()
+    public List<ItemRequestResponseDto> findAll(@RequestHeader("X-Sharer-User-Id") Long userId) {
+        return itemRequestService.findByAll(userId).stream()
                 .map(ItemRequestMapper::toItemRequestResponseDto)
                 .collect(Collectors.toList());
     }
     @GetMapping("/all")
     public List<ItemRequestResponseDto> findAllFrom(
             @RequestHeader("X-Sharer-User-Id") Long userId,
-            @RequestParam Integer from,
-            @RequestParam Integer size
+            @RequestParam @Nullable Integer from,
+            @RequestParam @Nullable Integer size
     ) {
         return itemRequestService.getAllFrom(userId, from, size).stream()
                 .map(ItemRequestMapper::toItemRequestResponseDto)
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping("/{requestId}")
+    public ItemRequestResponseDto findById(@PathVariable Long requestId,
+                                           @RequestHeader("X-Sharer-User-Id") Long userId){
+        return ItemRequestMapper.toItemRequestResponseDto(itemRequestService.findById(userId, requestId));
+
     }
 }

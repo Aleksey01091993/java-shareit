@@ -64,27 +64,50 @@ public class BookingController {
     public List<BookingResponseDTO> gatAllBookingDTO
             (
                     @RequestHeader("X-Sharer-User-Id") Long userId,
-                    @RequestParam @Nullable String state
+                    @RequestParam @Nullable String state,
+                    @RequestParam @Nullable Integer from,
+                    @RequestParam @Nullable Integer size
             ) {
-        log.info("Пришел GET запрос /bookings?state={}", state);
-        List<BookingResponseDTO> bookingResponseDto = service.getAll(userId, state).stream()
-                .map(BookingMapper::toBookingDto)
-                .collect(Collectors.toList());
-        log.info("Отправлен ответ для GET запроса /bookings?state={} с телом: {}", state, bookingResponseDto);
-        return bookingResponseDto;
+        if (from != null && size != null) {
+            log.info("Пришел GET запрос /bookings?from={}&size={}", from, size);
+            List<BookingResponseDTO> bookingResponseDto = service.getAllBookerIdFromAndSize(userId, from, size).stream()
+                    .map(BookingMapper::toBookingDto)
+                    .collect(Collectors.toList());
+            log.info("Отправлен ответ для GET запроса /bookings?from={}&size={} с телом: {}", from, size, bookingResponseDto);
+            return bookingResponseDto;
+        } else {
+            log.info("Пришел GET запрос /bookings?state={}", state);
+            List<BookingResponseDTO> bookingResponseDto = service.getAll(userId, state).stream()
+                    .map(BookingMapper::toBookingDto)
+                    .collect(Collectors.toList());
+            log.info("Отправлен ответ для GET запроса /bookings?state={} с телом: {}", state, bookingResponseDto);
+            return bookingResponseDto;
+        }
+
     }
 
     @GetMapping("/owner")
     public List<BookingResponseDTO> getAllOwnerId
             (@RequestHeader("X-Sharer-User-Id") Long ownerId,
-             @RequestParam @Nullable String state
+             @RequestParam @Nullable String state,
+             @RequestParam @Nullable Integer from,
+             @RequestParam @Nullable Integer size
             ) {
-        log.info("Пришел GET запрос /bookings/owner?state={}", state);
-        List<BookingResponseDTO> bookingResponseDto = service.getAllOwnerId(ownerId, state).stream()
-                .map(BookingMapper::toBookingDto)
-                .collect(Collectors.toList());
-        log.info("Отправлен ответ для GET запроса /bookings/owner?state={} с телом: {}", state, bookingResponseDto);
-        return bookingResponseDto;
+        if (from != null && size != null) {
+            log.info("Пришел GET запрос /bookings/owner?from={}&size={}", from, size);
+            List<BookingResponseDTO> bookingResponseDto = service.getAllOwnerIdFromAndSize(ownerId, from, size).stream()
+                    .map(BookingMapper::toBookingDto)
+                    .collect(Collectors.toList());
+            log.info("Отправлен ответ для GET запроса /bookings/owner?from={}&size={} с телом: {}", from, size, bookingResponseDto);
+            return bookingResponseDto;
+        } else {
+            log.info("Пришел GET запрос /bookings/owner?state={}", state);
+            List<BookingResponseDTO> bookingResponseDto = service.getAllOwnerId(ownerId, state).stream()
+                    .map(BookingMapper::toBookingDto)
+                    .collect(Collectors.toList());
+            log.info("Отправлен ответ для GET запроса /bookings/owner?state={} с телом: {}", state, bookingResponseDto);
+            return bookingResponseDto;
+        }
     }
 
 }
