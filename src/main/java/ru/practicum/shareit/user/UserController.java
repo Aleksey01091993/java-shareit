@@ -69,4 +69,8 @@ public class UserController {
         log.info("Отправлен ответ для GET запроса /users");
         return users;
     }
+
+
+
+
 }

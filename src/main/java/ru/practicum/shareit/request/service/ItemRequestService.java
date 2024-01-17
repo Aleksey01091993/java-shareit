@@ -56,7 +56,8 @@ public class ItemRequestService {
         if (from == null || size == null) {
             return new ArrayList<>();
         }
-        return itemRequestStorage.findByRequestor_IdNotOrderByCreatedAsc(userId, PageRequest.of(from, size))
+
+        return itemRequestStorage.findByRequestor_IdNotOrderByCreatedAsc(userId, PageRequest.of(from / size, size))
                 .stream()
                 .peek(o1 -> o1.setItems(
                         itemStorage.findByRequest_Id(o1.getId()).stream()

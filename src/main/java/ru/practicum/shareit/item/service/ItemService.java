@@ -122,7 +122,7 @@ public class ItemService implements Serializable {
 
     public List<Item> getAllFromAndSize(Long userId, Integer from, Integer size) {
         List<Item> items = itemStorage
-                .findAllByOwnerIdOrderById(userId, PageRequest.of(from, size));
+                .findAllByOwnerIdOrderById(userId, PageRequest.of(from / size, size));
         List<Item> newItem = new ArrayList<>();
         for (Item item : items) {
             item.setComments(commentsStorage.findAllByItemId(item.getId()));
@@ -146,7 +146,7 @@ public class ItemService implements Serializable {
     }
 
     public List<Item> getAllSearchFromAndSize(Integer from, Integer size) {
-        Page<Item> items = itemStorage.findAll(PageRequest.of(from, size));
+        Page<Item> items = itemStorage.findAll(PageRequest.of(from / size, size));
         List<Item> newItem = new ArrayList<>();
         for (Item item : items) {
             item.setComments(commentsStorage.findAllByItemId(item.getId()));

@@ -152,12 +152,12 @@ public class BookingService {
     public List<Booking> getAllOwnerIdFromAndSize(Long ownerId, Integer from, Integer size){
         userStorage.findById(ownerId)
                 .orElseThrow(() -> new InternalServerErrorException("owner not found by id:" + ownerId));
-        return bookingStorage.findByItem_OwnerIdOrderByStartTimeDesc(ownerId, PageRequest.of(from, size));
+        return bookingStorage.findByItem_OwnerIdOrderByStartTimeDesc(ownerId, PageRequest.of(from / size, size));
     }
     public List<Booking> getAllBookerIdFromAndSize(Long bookerId, Integer from, Integer size) {
         userStorage.findById(bookerId)
                 .orElseThrow(() -> new InternalServerErrorException("owner not found by id:" + bookerId));
-        return bookingStorage.findByBooker_IdOrderByStartTimeDesc(bookerId, PageRequest.of(from, size));
+        return bookingStorage.findByBooker_IdOrderByStartTimeDesc(bookerId, PageRequest.of(from / size, size));
     }
 
 
