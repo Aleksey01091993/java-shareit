@@ -122,8 +122,6 @@ public class BookingService {
 
     }
 
-
-
     public List<Booking> getAllOwnerId(Long ownerId, String state) {
         userStorage.findById(ownerId)
                 .orElseThrow(() -> new InternalServerErrorException("owner not found by id:" + ownerId));

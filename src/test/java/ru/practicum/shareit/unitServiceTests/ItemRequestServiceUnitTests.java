@@ -1,6 +1,5 @@
 package ru.practicum.shareit.unitServiceTests;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,9 +16,7 @@ import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.model.ItemRequestToItem;
 import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.request.storage.ItemRequestStorage;
-import ru.practicum.shareit.user.dto.UserResponseDTO;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.user.storage.UserStorage;
 
 import java.time.LocalDateTime;
@@ -68,6 +65,7 @@ public class ItemRequestServiceUnitTests {
                         1L
                 ))
         );
+
         itemRequest = new ItemRequest(
                 1L,
                 "text",
@@ -81,6 +79,7 @@ public class ItemRequestServiceUnitTests {
                         1L
                 ))
         );
+
         item = new Item(
                 1L,
                 "name",
@@ -101,8 +100,7 @@ public class ItemRequestServiceUnitTests {
         );
         when(userStorage.findById(anyLong()))
                 .thenReturn(Optional.of(user));
-        when(itemStorage.findByRequest_Id(anyLong()))
-                .thenReturn(List.of(item));
+
     }
 
     @Test

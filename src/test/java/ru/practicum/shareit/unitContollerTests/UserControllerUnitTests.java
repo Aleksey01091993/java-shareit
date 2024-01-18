@@ -1,4 +1,4 @@
-package ru.practicum.shareit.unitContollerTest;
+package ru.practicum.shareit.unitContollerTests;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;

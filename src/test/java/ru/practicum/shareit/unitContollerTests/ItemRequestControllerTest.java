@@ -1,4 +1,4 @@
-package ru.practicum.shareit.unitContollerTest;
+package ru.practicum.shareit.unitContollerTests;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,15 +8,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.request.ItemRequestController;
-import ru.practicum.shareit.request.dto.ItemRequestResponseDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.model.User;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
@@ -41,7 +38,7 @@ public class ItemRequestControllerTest {
     private MockMvc mvc;
 
     private static ItemRequest itemRequest;
-    private static ItemRequestResponseDto itemRequestResponseDto;
+
 
     @BeforeEach
     void addItemRequest() {
@@ -52,12 +49,6 @@ public class ItemRequestControllerTest {
                 null,
                 null
                 );
-        itemRequestResponseDto = new ItemRequestResponseDto(
-                1L,
-                "text",
-                null,
-                null
-        );
     }
 
     @Test

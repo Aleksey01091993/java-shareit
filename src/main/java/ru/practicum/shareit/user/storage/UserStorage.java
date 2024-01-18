@@ -8,5 +8,4 @@ import ru.practicum.shareit.user.model.User;
 
 @Repository
 public interface UserStorage extends JpaRepository<User, Long> {
-
 }
