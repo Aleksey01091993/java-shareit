@@ -153,7 +153,7 @@ public class BookingControllerUnitTests {
 
     @Test
     public void getBookingAll() throws Exception {
-        when(service.getAll(anyLong(), anyString()))
+        when(service.getAll(anyLong(), anyString(), anyInt(), anyInt()))
                 .thenReturn(List.of(booking));
 
         mvc.perform(get("/bookings?state=state")
@@ -175,7 +175,7 @@ public class BookingControllerUnitTests {
 
     @Test
     public void getBookingAllOwner() throws Exception {
-        when(service.getAllOwnerId(anyLong(), anyString()))
+        when(service.getAllOwnerId(anyLong(), anyString(), anyInt(), anyInt()))
                 .thenReturn(List.of(booking));
 
         mvc.perform(get("/bookings/owner?state=state")

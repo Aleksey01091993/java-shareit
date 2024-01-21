@@ -97,7 +97,12 @@ public class BookingService {
         }
     }
 
-    public List<Booking> getAll(Long bookerId, String state) {
+    public List<Booking> getAll(Long bookerId, String state, Integer from, Integer size) {
+        if (from != null && size != null) {
+            userStorage.findById(bookerId)
+                    .orElseThrow(() -> new InternalServerErrorException("owner not found by id:" + bookerId));
+            return bookingStorage.findByBooker_IdOrderByStartTimeDesc(bookerId, PageRequest.of(from / size, size));
+        }
         if (state == null || state.equals("ALL")) {
             return bookingStorage
                     .findByBooker_IdOrderByStartTimeDesc(bookerId);
@@ -122,7 +127,12 @@ public class BookingService {
 
     }
 
-    public List<Booking> getAllOwnerId(Long ownerId, String state) {
+    public List<Booking> getAllOwnerId(Long ownerId, String state, Integer from, Integer size) {
+        if (from != null && size != null) {
+            userStorage.findById(ownerId)
+                    .orElseThrow(() -> new InternalServerErrorException("owner not found by id:" + ownerId));
+            return bookingStorage.findByItem_OwnerIdOrderByStartTimeDesc(ownerId, PageRequest.of(from / size, size));
+        }
         userStorage.findById(ownerId)
                 .orElseThrow(() -> new InternalServerErrorException("owner not found by id:" + ownerId));
         if (state == null || state.equals("ALL")) {
@@ -146,17 +156,4 @@ public class BookingService {
             throw new InternalServerErrorException("Unknown state: " + state);
         }
     }
-
-    public List<Booking> getAllOwnerIdFromAndSize(Long ownerId, Integer from, Integer size){
-        userStorage.findById(ownerId)
-                .orElseThrow(() -> new InternalServerErrorException("owner not found by id:" + ownerId));
-        return bookingStorage.findByItem_OwnerIdOrderByStartTimeDesc(ownerId, PageRequest.of(from / size, size));
-    }
-    public List<Booking> getAllBookerIdFromAndSize(Long bookerId, Integer from, Integer size) {
-        userStorage.findById(bookerId)
-                .orElseThrow(() -> new InternalServerErrorException("owner not found by id:" + bookerId));
-        return bookingStorage.findByBooker_IdOrderByStartTimeDesc(bookerId, PageRequest.of(from / size, size));
-    }
-
-
 }

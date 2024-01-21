@@ -26,5 +26,4 @@ public class User {
     private String name;
     @Column(unique = true, name = "email")
     private String email;
-
 }

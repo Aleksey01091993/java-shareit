@@ -179,7 +179,7 @@ public class ItemControllerUnitTest {
 
     @Test
     public void getAllItem() throws Exception {
-        when(service.getAll(anyLong())).thenReturn(List.of(item));
+        when(service.getAll(anyLong(), anyInt(), anyInt())).thenReturn(List.of(item));
 
         mvc.perform(get("/items")
                         .header("X-Sharer-User-Id", 1)
@@ -202,7 +202,7 @@ public class ItemControllerUnitTest {
 
     @Test
     public void getAllSearchItem() throws Exception {
-        when(service.getAllSearch(anyString())).thenReturn(List.of(item));
+        when(service.getAllSearch(anyString(), anyInt(), anyInt())).thenReturn(List.of(item));
 
         mvc.perform(get("/items/search?text=text")
                         .header("X-Sharer-User-Id", 1)

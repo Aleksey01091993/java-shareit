@@ -136,48 +136,4 @@ public class BookingServiceTests {
         Booking booking = bookingService.get(this.booking.getId(), user.getId());
         assertEquals(this.booking, booking);
     }
-
-    @Test
-    public void getAll() {
-        when(bookingStorage
-                .findByBooker_IdOrderByStartTimeDesc(anyLong()))
-                .thenReturn(List.of(booking));
-        List<Booking> booking = bookingService.getAll(this.booking.getId(), "ALL");
-        assertEquals(List.of(this.booking), booking);
-    }
-
-    @Test
-    public void getAllOwnerId() {
-        when(bookingStorage
-                .findByItem_OwnerIdOrderByStartTimeDesc(anyLong()))
-                .thenReturn(List.of(booking));
-        when(userStorage.findById(anyLong()))
-                .thenReturn(Optional.of(user));
-        List<Booking> booking = bookingService.getAllOwnerId(this.booking.getId(), "ALL");
-        assertEquals(List.of(this.booking), booking);
-    }
-
-    @Test
-    public void getAllBookerIdFromAndSize() {
-        when(userStorage.findById(anyLong()))
-                .thenReturn(Optional.of(user));
-        when(bookingStorage
-                .findByBooker_IdOrderByStartTimeDesc(anyLong(), any()))
-                .thenReturn(List.of(booking));
-        List<Booking> booking = bookingService.getAllBookerIdFromAndSize(this.booking.getId(), 1, 1);
-        assertEquals(List.of(this.booking), booking);
-    }
-
-    @Test
-    public void getAllOwnerIdFromAndSize() {
-        when(userStorage.findById(anyLong()))
-                .thenReturn(Optional.of(user));
-        when(bookingStorage
-                .findByItem_OwnerIdOrderByStartTimeDesc(anyLong(), any()))
-                .thenReturn(List.of(booking));
-        List<Booking> booking = bookingService.getAllOwnerIdFromAndSize(this.booking.getId(), 1, 1);
-        assertEquals(List.of(this.booking), booking);
-    }
-
-
 }

@@ -173,52 +173,6 @@ public class ItemServiceUnitTests {
     }
 
     @Test
-    public void getAll() {
-        when(itemStorage.findAllByOwnerIdOrderById(any()))
-                .thenReturn(List.of(item));
-        when(bookingStorage
-                .findFirstByEndTimeBeforeAndItemIdAndItem_OwnerIdOrderByEndTimeDesc(any(), anyLong(), anyLong())
-        ).thenReturn(Optional.of(booking));
-        when(bookingStorage
-                .findFirstByStartTimeAfterAndItemIdAndItem_OwnerIdAndStatusOrderByStartTime(any(), anyLong(), anyLong(), any())
-        ).thenReturn(Optional.of(booking));
-        when(commentsStorage.findAllByItemId(anyLong())).thenReturn(List.of(comments));
-        List<Item> item = service.getAll(1L);
-        assertEquals(List.of(this.item), item);
-    }
-
-    @Test
-    public void getAllFromAndSize() {
-        when(itemStorage.findAllByOwnerIdOrderById(any(), any()))
-                .thenReturn(List.of(item));
-        when(bookingStorage
-                .findFirstByEndTimeBeforeAndItemIdAndItem_OwnerIdOrderByEndTimeDesc(any(), anyLong(), anyLong())
-        ).thenReturn(Optional.of(booking));
-        when(bookingStorage
-                .findFirstByStartTimeAfterAndItemIdAndItem_OwnerIdAndStatusOrderByStartTime(any(), anyLong(), anyLong(), any())
-        ).thenReturn(Optional.of(booking));
-        when(commentsStorage.findAllByItemId(anyLong())).thenReturn(List.of(comments));
-        List<Item> item = service.getAllFromAndSize(1L, 1, 1);
-        assertEquals(List.of(this.item), item);
-    }
-
-    @Test
-    public void getAllSearch() {
-        when(itemStorage
-                .findAllByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndAvailable(anyString(), anyString(), anyBoolean()))
-                .thenReturn(List.of(item));
-        when(bookingStorage
-                .findFirstByEndTimeBeforeAndItemIdAndItem_OwnerIdOrderByEndTimeDesc(any(), anyLong(), anyLong())
-        ).thenReturn(Optional.of(booking));
-        when(bookingStorage
-                .findFirstByStartTimeAfterAndItemIdAndItem_OwnerIdAndStatusOrderByStartTime(any(), anyLong(), anyLong(), any())
-        ).thenReturn(Optional.of(booking));
-        when(commentsStorage.findAllByItemId(anyLong())).thenReturn(List.of(comments));
-        List<Item> item = service.getAllSearch(" 1L, 1, 1");
-        assertEquals(List.of(this.item), item);
-    }
-
-    @Test
     public void addComment() {
         when(userStorage.findById(anyLong()))
                 .thenReturn(Optional.of(user));

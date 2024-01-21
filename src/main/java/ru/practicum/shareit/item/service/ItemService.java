@@ -95,7 +95,31 @@ public class ItemService implements Serializable {
         return ItemMapper.toItem(item, ItemMapper.toItemResponseDto(item), item.getOwner(), item.getRequest());
     }
 
-    public List<Item> getAll(Long userId) {
+    public List<Item> getAll(Long userId, Integer from, Integer size) {
+        if (from != null && size != null) {
+            List<Item> items = itemStorage
+                    .findAllByOwnerIdOrderById(userId, PageRequest.of(from / size, size));
+            List<Item> newItem = new ArrayList<>();
+            for (Item item : items) {
+                item.setComments(commentsStorage.findAllByItemId(item.getId()));
+                item.setLastBooking(
+                        ItemMapper.toBookingToItem(
+                                bookingStorage
+                                        .findFirstByEndTimeBeforeAndItemIdAndItem_OwnerIdOrderByEndTimeDesc(LocalDateTime.now(), item.getId(), item.getOwner().getId()).orElse(null)
+                        )
+                );
+                item.setNextBooking(
+                        ItemMapper.toBookingToItem(
+                                bookingStorage
+                                        .findFirstByStartTimeAfterAndItemIdAndItem_OwnerIdAndStatusOrderByStartTime(LocalDateTime.now(), item.getId(), item.getOwner().getId(), APPROVED).orElse(null)
+                        )
+                );
+                newItem.add(
+                        ItemMapper.toItem(item, ItemMapper.toItemResponseDto(item), item.getOwner(), item.getRequest()));
+
+            }
+            return newItem;
+        }
         List<Item> items = itemStorage
                 .findAllByOwnerIdOrderById(userId);
         List<Item> newItem = new ArrayList<>();
@@ -120,56 +144,30 @@ public class ItemService implements Serializable {
         return newItem;
     }
 
-    public List<Item> getAllFromAndSize(Long userId, Integer from, Integer size) {
-        List<Item> items = itemStorage
-                .findAllByOwnerIdOrderById(userId, PageRequest.of(from / size, size));
-        List<Item> newItem = new ArrayList<>();
-        for (Item item : items) {
-            item.setComments(commentsStorage.findAllByItemId(item.getId()));
-            item.setLastBooking(
-                    ItemMapper.toBookingToItem(
-                            bookingStorage
-                                    .findFirstByEndTimeBeforeAndItemIdAndItem_OwnerIdOrderByEndTimeDesc(LocalDateTime.now(), item.getId(), item.getOwner().getId()).orElse(null)
-                    )
-            );
-            item.setNextBooking(
-                    ItemMapper.toBookingToItem(
-                            bookingStorage
-                                    .findFirstByStartTimeAfterAndItemIdAndItem_OwnerIdAndStatusOrderByStartTime(LocalDateTime.now(), item.getId(), item.getOwner().getId(), APPROVED).orElse(null)
-                    )
-            );
-            newItem.add(
-                    ItemMapper.toItem(item, ItemMapper.toItemResponseDto(item), item.getOwner(), item.getRequest()));
+    public List<Item> getAllSearch(String search, Integer from, Integer size) {
+        if (from != null && size != null) {
+            Page<Item> items = itemStorage.findAll(PageRequest.of(from / size, size));
+            List<Item> newItem = new ArrayList<>();
+            for (Item item : items) {
+                item.setComments(commentsStorage.findAllByItemId(item.getId()));
+                item.setLastBooking(
+                        ItemMapper.toBookingToItem(
+                                bookingStorage
+                                        .findFirstByEndTimeBeforeAndItemIdAndItem_OwnerIdOrderByEndTimeDesc(LocalDateTime.now(), item.getId(), item.getOwner().getId()).orElse(null)
+                        )
+                );
+                item.setNextBooking(
+                        ItemMapper.toBookingToItem(
+                                bookingStorage
+                                        .findFirstByStartTimeAfterAndItemIdAndItem_OwnerIdAndStatusOrderByStartTime(LocalDateTime.now(), item.getId(), item.getOwner().getId(), APPROVED).orElse(null)
+                        )
+                );
+                newItem.add(
+                        ItemMapper.toItem(item, ItemMapper.toItemResponseDto(item), item.getOwner(), item.getRequest()));
 
+            }
+            return newItem;
         }
-        return newItem;
-    }
-
-    public List<Item> getAllSearchFromAndSize(Integer from, Integer size) {
-        Page<Item> items = itemStorage.findAll(PageRequest.of(from / size, size));
-        List<Item> newItem = new ArrayList<>();
-        for (Item item : items) {
-            item.setComments(commentsStorage.findAllByItemId(item.getId()));
-            item.setLastBooking(
-                    ItemMapper.toBookingToItem(
-                            bookingStorage
-                                    .findFirstByEndTimeBeforeAndItemIdAndItem_OwnerIdOrderByEndTimeDesc(LocalDateTime.now(), item.getId(), item.getOwner().getId()).orElse(null)
-                    )
-            );
-            item.setNextBooking(
-                    ItemMapper.toBookingToItem(
-                            bookingStorage
-                                    .findFirstByStartTimeAfterAndItemIdAndItem_OwnerIdAndStatusOrderByStartTime(LocalDateTime.now(), item.getId(), item.getOwner().getId(), APPROVED).orElse(null)
-                    )
-            );
-            newItem.add(
-                    ItemMapper.toItem(item, ItemMapper.toItemResponseDto(item), item.getOwner(), item.getRequest()));
-
-        }
-        return newItem;
-    }
-
-    public List<Item> getAllSearch(String search) {
         if (search == null || search.isEmpty()) {
             return new ArrayList<>();
         } else {

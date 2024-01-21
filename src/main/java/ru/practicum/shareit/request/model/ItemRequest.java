@@ -28,5 +28,5 @@ public class ItemRequest {
     @Column(name = "create_time")
     private LocalDateTime created;
     @Transient
-    List<ItemRequestToItem> items;
+    private List<ItemRequestToItem> items;
 }

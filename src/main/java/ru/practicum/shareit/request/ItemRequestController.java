@@ -27,34 +27,54 @@ public class ItemRequestController {
     }
 
     @PostMapping()
-    public ItemRequestResponseDto create(@RequestBody @Valid ItemRequestCreateRequestDto requestDto,
-                                         @RequestHeader("X-Sharer-User-Id") Long userId) {
+    public ItemRequestResponseDto create
+            (
+                    @RequestBody @Valid ItemRequestCreateRequestDto requestDto,
+                    @RequestHeader("X-Sharer-User-Id") Long userId
+            ) {
+        log.info("Пришел POST запрос /requests с телом: {}", requestDto);
         ItemRequestResponseDto itemRequestResponseDto =
                 ItemRequestMapper.toItemRequestResponseDto(itemRequestService.create(requestDto, userId));
+        log.info("Отправлен ответ для POST запроса /requests с телом: {}", itemRequestResponseDto);
         return itemRequestResponseDto;
     }
 
     @GetMapping
-    public List<ItemRequestResponseDto> findAll(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        return itemRequestService.findByAll(userId).stream()
+    public List<ItemRequestResponseDto> findAll
+            (
+                    @RequestHeader("X-Sharer-User-Id") Long userId
+            ) {
+        log.info("Пришел GET запрос /requests с : X-Sharer-User-Id {}", userId);
+        List<ItemRequestResponseDto> itemRequestResponseDto = itemRequestService.findByAll(userId).stream()
                 .map(ItemRequestMapper::toItemRequestResponseDto)
                 .collect(Collectors.toList());
+        log.info("Отправлен ответ для GET запроса /requests с телом: {}", itemRequestResponseDto);
+        return itemRequestResponseDto;
     }
     @GetMapping("/all")
-    public List<ItemRequestResponseDto> findAllFrom(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
-            @RequestParam @Nullable Integer from,
-            @RequestParam @Nullable Integer size
-    ) {
-        return itemRequestService.getAllFrom(userId, from, size).stream()
+    public List<ItemRequestResponseDto> findAllFrom
+            (
+                    @RequestHeader("X-Sharer-User-Id") Long userId,
+                    @RequestParam @Nullable Integer from,
+                    @RequestParam @Nullable Integer size
+            ) {
+        log.info("Пришел GET запрос /requests с параметрами: {}, {}, {}", userId, from, size);
+        List<ItemRequestResponseDto> itemRequestResponseDto = itemRequestService.getAllFrom(userId, from, size).stream()
                 .map(ItemRequestMapper::toItemRequestResponseDto)
                 .collect(Collectors.toList());
+        log.info("Отправлен ответ для GET запроса /requests с телом: {}", itemRequestResponseDto);
+        return itemRequestResponseDto;
     }
 
     @GetMapping("/{requestId}")
-    public ItemRequestResponseDto findById(@PathVariable Long requestId,
-                                           @RequestHeader("X-Sharer-User-Id") Long userId){
-        return ItemRequestMapper.toItemRequestResponseDto(itemRequestService.findById(userId, requestId));
-
+    public ItemRequestResponseDto findById
+            (
+                    @PathVariable Long requestId,
+                    @RequestHeader("X-Sharer-User-Id") Long userId
+            ) {
+        log.info("Пришел GET запрос /requests с параметрами: {}", requestId);
+        ItemRequestResponseDto itemRequestResponseDto = ItemRequestMapper.toItemRequestResponseDto(itemRequestService.findById(userId, requestId));
+        log.info("Отправлен ответ для GET запроса /requests с телом: {}", itemRequestResponseDto);
+        return itemRequestResponseDto;
     }
 }

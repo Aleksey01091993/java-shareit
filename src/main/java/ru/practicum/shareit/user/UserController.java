@@ -29,7 +29,10 @@ public class UserController {
     }
 
     @PostMapping
-    public UserDTO userCreateDTO(@RequestBody @Valid UserResponseDTO user) {
+    public UserDTO userCreateDTO
+            (
+                    @RequestBody @Valid UserResponseDTO user
+            ) {
         log.info("Пришел POST запрос /users с телом: {}", user);
         UserDTO userResponse = UserMapper.userDTO(userService.create(user));
         log.info("Отправлен ответ для POST запроса /users с телом: {}", userResponse);
@@ -37,7 +40,11 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public UserDTO userUpdateDTO(@RequestBody @Nullable UserResponseDTO user, @PathVariable Long userId) {
+    public UserDTO userUpdateDTO
+            (
+                    @RequestBody @Nullable UserResponseDTO user,
+                    @PathVariable Long userId
+            ) {
         log.info("Пришел PATH запрос /users/{} с телом: {}", userId, user);
         UserDTO userResponse = UserMapper.userDTO(userService.update(user, userId));
         log.info("Отправлен ответ для PATH запроса /users/{} с телом: {}", userId, userResponse);
@@ -45,7 +52,10 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public UserDTO userGetDTO(@PathVariable Long userId) {
+    public UserDTO userGetDTO
+            (
+                    @PathVariable Long userId
+            ) {
         log.info("Пришел GET запрос /users с телом: {}", userId);
         UserDTO userOne = UserMapper.userDTO(userService.get(userId));
         log.info("Отправлен ответ для GET запроса /users с телом: {}", userOne);
@@ -53,7 +63,10 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
-    public UserDTO userDeleteDTO(@PathVariable(required = false) Long userId) {
+    public UserDTO userDeleteDTO
+            (
+                    @PathVariable(required = false) Long userId
+            ) {
         log.info("Пришел DELETE запрос /users/{}", userId);
         UserDTO user = UserMapper.userDTO(userService.delete(userId));
         log.info("Отправлен ответ для DELETE запроса с телом: {}", user);
@@ -69,8 +82,4 @@ public class UserController {
         log.info("Отправлен ответ для GET запроса /users");
         return users;
     }
-
-
-
-
 }
