@@ -4,15 +4,12 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.item.coments.model.Comments;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * TODO Sprint add-item-requests.
- */
+
 @Data
 @Entity
 @Table(name = "item_request")
@@ -25,11 +22,11 @@ public class ItemRequest {
     private Long id;
     @Column(name = "description")
     private String description;
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "requestor_id")
     private User requestor;
     @Column(name = "create_time")
-    private LocalDateTime create;
+    private LocalDateTime created;
     @Transient
-    private List<Comments> comments;
+    private List<ItemRequestToItem> items;
 }

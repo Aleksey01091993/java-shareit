@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.booking.dto.BookingResponseDTO;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
+import ru.practicum.shareit.booking.dto.BookingResponseDTO;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.service.BookingService;
 
@@ -25,10 +25,11 @@ public class BookingController {
     }
 
     @PostMapping
-    public BookingResponseDTO createBookingDTO(
-            @RequestBody @Valid @Nullable BookingRequestDto bookingRequestDto,
-            @RequestHeader("X-Sharer-User-Id") Long userId
-    ) {
+    public BookingResponseDTO createBookingDTO
+            (
+                    @RequestBody @Valid @Nullable BookingRequestDto bookingRequestDto,
+                    @RequestHeader("X-Sharer-User-Id") Long userId
+            ) {
         log.info("Пришел POST запрос /bookings с телом: {}", bookingRequestDto);
         BookingResponseDTO bookingResponseDto = BookingMapper.toBookingDto(service.create(bookingRequestDto, userId));
         log.info("Отправлен ответ для POST запроса /bookings с телом: {}", bookingResponseDto);
@@ -64,27 +65,32 @@ public class BookingController {
     public List<BookingResponseDTO> gatAllBookingDTO
             (
                     @RequestHeader("X-Sharer-User-Id") Long userId,
-                    @RequestParam @Nullable String state
+                    @RequestParam @Nullable String state,
+                    @RequestParam @Nullable Integer from,
+                    @RequestParam @Nullable Integer size
             ) {
-        log.info("Пришел GET запрос /bookings?state={}", state);
-        List<BookingResponseDTO> bookingResponseDto = service.getAll(userId, state).stream()
-                .map(BookingMapper::toBookingDto)
-                .collect(Collectors.toList());
-        log.info("Отправлен ответ для GET запроса /bookings?state={} с телом: {}", state, bookingResponseDto);
-        return bookingResponseDto;
-    }
+            log.info("Пришел GET запрос /bookings с параметрами {}, {}, {}", state, from, size);
+            List<BookingResponseDTO> bookingResponseDto = service.getAll(userId, state, from, size).stream()
+                    .map(BookingMapper::toBookingDto)
+                    .collect(Collectors.toList());
+            log.info("Отправлен ответ для GET запроса /bookings с параметрами {}, {}, {}, с телом: {}", state, from, size, bookingResponseDto);
+            return bookingResponseDto;
+        }
+
 
     @GetMapping("/owner")
     public List<BookingResponseDTO> getAllOwnerId
-            (@RequestHeader("X-Sharer-User-Id") Long ownerId,
-             @RequestParam @Nullable String state
+            (
+                    @RequestHeader("X-Sharer-User-Id") Long ownerId,
+                    @RequestParam @Nullable String state,
+                    @RequestParam @Nullable Integer from,
+                    @RequestParam @Nullable Integer size
             ) {
-        log.info("Пришел GET запрос /bookings/owner?state={}", state);
-        List<BookingResponseDTO> bookingResponseDto = service.getAllOwnerId(ownerId, state).stream()
-                .map(BookingMapper::toBookingDto)
-                .collect(Collectors.toList());
-        log.info("Отправлен ответ для GET запроса /bookings/owner?state={} с телом: {}", state, bookingResponseDto);
-        return bookingResponseDto;
+            log.info("Пришел GET запрос /bookings с параметрами: {}, {}, {}", state, from, size);
+            List<BookingResponseDTO> bookingResponseDto = service.getAllOwnerId(ownerId, state, from, size).stream()
+                    .map(BookingMapper::toBookingDto)
+                    .collect(Collectors.toList());
+            log.info("Отправлен ответ для GET запроса /bookings с параметрами: {}, {}, {}, с телом: {}", state, from, size, bookingResponseDto);
+            return bookingResponseDto;
+        }
     }
-
-}

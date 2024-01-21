@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.storage.BookingStorage;
@@ -13,6 +15,8 @@ import ru.practicum.shareit.item.dto.ItemCreateRequestDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemStorage;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.storage.ItemRequestStorage;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
 
@@ -31,24 +35,29 @@ public class ItemService implements Serializable {
     private final BookingStorage bookingStorage;
 
     private final CommentsStorage commentsStorage;
+    private final ItemRequestStorage  itemRequestStorage;
 
 
     public ItemService(@Autowired ItemStorage itemStorage,
                        @Autowired UserStorage userStorage,
                        @Autowired BookingStorage bookingStorage,
-                       @Autowired CommentsStorage commentsStorage
+                       @Autowired CommentsStorage commentsStorage,
+                       @Autowired ItemRequestStorage  itemRequestStorage
     ) {
         this.itemStorage = itemStorage;
         this.userStorage = userStorage;
         this.bookingStorage = bookingStorage;
         this.commentsStorage = commentsStorage;
+        this.itemRequestStorage = itemRequestStorage;
     }
 
     public Item create(ItemCreateRequestDto item, Long userId) {
         User user = userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("user not found by id: " + userId));
+        ItemRequest itemRequest = item.getRequestId() != null ? itemRequestStorage.findById(item.getRequestId())
+                .orElse(null) : null;
 
-        return itemStorage.save(ItemMapper.toItem(null, item, user));
+        return itemStorage.save(ItemMapper.toItem(null, item, user, itemRequest));
     }
 
     public Item update(ItemCreateRequestDto item, Long userId, Long itemId) {
@@ -60,8 +69,10 @@ public class ItemService implements Serializable {
         }
         User user = userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("user not found by id: " + userId));
+        ItemRequest itemRequest = item.getRequestId() != null ? itemRequestStorage.findById(item.getRequestId())
+                .orElse(null) : null;
 
-        return itemStorage.save(ItemMapper.toItem(itemNew, item, user));
+        return itemStorage.save(ItemMapper.toItem(itemNew, item, user, itemRequest));
     }
 
     public Item get(Long itemId, Long ownerId) {
@@ -80,12 +91,37 @@ public class ItemService implements Serializable {
                                 .findFirstByStartTimeAfterAndItemIdAndItem_OwnerIdAndStatusOrderByStartTime(LocalDateTime.now(), itemId, ownerId, APPROVED).orElse(null)
                 )
         );
-        return ItemMapper.toItem(item, ItemMapper.toItemResponseDto(item), item.getOwner());
+
+        return ItemMapper.toItem(item, ItemMapper.toItemResponseDto(item), item.getOwner(), item.getRequest());
     }
 
-    public List<Item> getAll(Long userId) {
+    public List<Item> getAll(Long userId, Integer from, Integer size) {
+        if (from != null && size != null) {
+            List<Item> items = itemStorage
+                    .findAllByOwnerIdOrderById(userId, PageRequest.of(from / size, size));
+            List<Item> newItem = new ArrayList<>();
+            for (Item item : items) {
+                item.setComments(commentsStorage.findAllByItemId(item.getId()));
+                item.setLastBooking(
+                        ItemMapper.toBookingToItem(
+                                bookingStorage
+                                        .findFirstByEndTimeBeforeAndItemIdAndItem_OwnerIdOrderByEndTimeDesc(LocalDateTime.now(), item.getId(), item.getOwner().getId()).orElse(null)
+                        )
+                );
+                item.setNextBooking(
+                        ItemMapper.toBookingToItem(
+                                bookingStorage
+                                        .findFirstByStartTimeAfterAndItemIdAndItem_OwnerIdAndStatusOrderByStartTime(LocalDateTime.now(), item.getId(), item.getOwner().getId(), APPROVED).orElse(null)
+                        )
+                );
+                newItem.add(
+                        ItemMapper.toItem(item, ItemMapper.toItemResponseDto(item), item.getOwner(), item.getRequest()));
+
+            }
+            return newItem;
+        }
         List<Item> items = itemStorage
-                .findAllByOwnerId(userId);
+                .findAllByOwnerIdOrderById(userId);
         List<Item> newItem = new ArrayList<>();
         for (Item item : items) {
             item.setComments(commentsStorage.findAllByItemId(item.getId()));
@@ -102,13 +138,36 @@ public class ItemService implements Serializable {
                     )
             );
             newItem.add(
-                    ItemMapper.toItem(item, ItemMapper.toItemResponseDto(item), item.getOwner()));
+                    ItemMapper.toItem(item, ItemMapper.toItemResponseDto(item), item.getOwner(), item.getRequest()));
 
         }
         return newItem;
     }
 
-    public List<Item> getAllSearch(String search) {
+    public List<Item> getAllSearch(String search, Integer from, Integer size) {
+        if (from != null && size != null) {
+            Page<Item> items = itemStorage.findAll(PageRequest.of(from / size, size));
+            List<Item> newItem = new ArrayList<>();
+            for (Item item : items) {
+                item.setComments(commentsStorage.findAllByItemId(item.getId()));
+                item.setLastBooking(
+                        ItemMapper.toBookingToItem(
+                                bookingStorage
+                                        .findFirstByEndTimeBeforeAndItemIdAndItem_OwnerIdOrderByEndTimeDesc(LocalDateTime.now(), item.getId(), item.getOwner().getId()).orElse(null)
+                        )
+                );
+                item.setNextBooking(
+                        ItemMapper.toBookingToItem(
+                                bookingStorage
+                                        .findFirstByStartTimeAfterAndItemIdAndItem_OwnerIdAndStatusOrderByStartTime(LocalDateTime.now(), item.getId(), item.getOwner().getId(), APPROVED).orElse(null)
+                        )
+                );
+                newItem.add(
+                        ItemMapper.toItem(item, ItemMapper.toItemResponseDto(item), item.getOwner(), item.getRequest()));
+
+            }
+            return newItem;
+        }
         if (search == null || search.isEmpty()) {
             return new ArrayList<>();
         } else {
@@ -130,7 +189,7 @@ public class ItemService implements Serializable {
                         )
                 );
                 newItem.add(
-                        ItemMapper.toItem(item, ItemMapper.toItemResponseDto(item), item.getOwner()));
+                        ItemMapper.toItem(item, ItemMapper.toItemResponseDto(item), item.getOwner(), item.getRequest()));
 
             }
             return newItem;

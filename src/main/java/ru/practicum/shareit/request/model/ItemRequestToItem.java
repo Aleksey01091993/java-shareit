@@ -1,23 +1,18 @@
-package ru.practicum.shareit.item.dto;
+package ru.practicum.shareit.request.model;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ItemCreateRequestDto {
-    @NotNull
-    @NotBlank
+public class ItemRequestToItem {
+    private Long id;
     private String name;
-    @NotNull
-    @NotBlank
     private String description;
-    @NotNull
     private Boolean available;
     private Long requestId;
 }
