@@ -1,26 +1,24 @@
 package ru.practicum.item.service;
 
 import jakarta.annotation.Nullable;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.booking.model.Booking;
 import ru.practicum.booking.storage.BookingStorage;
-import ru.practicum.item.coments.mapper.CommentMapper;
-import ru.practicum.item.dto.ItemResponseDto;
-import ru.practicum.item.storage.ItemStorage;
 import ru.practicum.exception.BadRequestException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.item.coments.DTO.CommentsDTO;
+import ru.practicum.item.coments.mapper.CommentMapper;
 import ru.practicum.item.coments.model.Comments;
 import ru.practicum.item.coments.storage.CommentsStorage;
 import ru.practicum.item.dto.ItemCreateRequestDto;
+import ru.practicum.item.dto.ItemResponseDto;
 import ru.practicum.item.mapper.ItemMapper;
 import ru.practicum.item.model.Item;
+import ru.practicum.item.storage.ItemStorage;
 import ru.practicum.request.model.ItemRequest;
 import ru.practicum.request.storage.ItemRequestStorage;
 import ru.practicum.user.model.User;
@@ -31,7 +29,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ru.practicum.booking.status.Status.*;
+import static ru.practicum.booking.status.Status.APPROVED;
 
 @Service
 @Controller
@@ -48,7 +46,7 @@ public class ItemService implements Serializable {
 
     @PostMapping
     public ItemResponseDto create(
-            @RequestBody @Valid ItemCreateRequestDto item,
+            @RequestBody ItemCreateRequestDto item,
             @RequestHeader("X-Sharer-User-Id") Long userId
     ) {
         User user = userStorage.findById(userId)
@@ -223,7 +221,7 @@ public class ItemService implements Serializable {
     public CommentsDTO addComment(
             @RequestHeader("X-Sharer-User-Id") Long userId,
             @PathVariable Long itemId,
-            @RequestBody @Valid CommentsDTO commentsDTO
+            @RequestBody CommentsDTO commentsDTO
     ) {
         itemStorage.findById(itemId)
                 .orElseThrow(() -> new BadRequestException("item not found by id:" + itemId));

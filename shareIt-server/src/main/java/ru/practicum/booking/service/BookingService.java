@@ -1,9 +1,7 @@
 package ru.practicum.booking.service;
 
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
@@ -26,7 +24,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
 import static ru.practicum.booking.status.Status.*;
 
 @Service
@@ -41,7 +38,7 @@ public class BookingService {
 
     @PostMapping
     public BookingResponseDTO create(
-            @RequestBody @Valid @Nullable BookingRequestDto bookingRequestDto,
+            @RequestBody @Nullable BookingRequestDto bookingRequestDto,
             @RequestHeader("X-Sharer-User-Id") Long userId
     ) {
         Item item = itemStorage.findById(bookingRequestDto.getItemId())

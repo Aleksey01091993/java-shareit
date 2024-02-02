@@ -1,10 +1,8 @@
 package ru.practicum.request.service;
 
 import jakarta.annotation.Nullable;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
@@ -38,7 +36,7 @@ public class ItemRequestService {
 
     @PostMapping
     public ItemRequest create(
-            @RequestBody @Valid ItemRequestCreateRequestDto itemRequest,
+            @RequestBody ItemRequestCreateRequestDto itemRequest,
             @RequestHeader("X-Sharer-User-Id") Long userId
 
     ) {
