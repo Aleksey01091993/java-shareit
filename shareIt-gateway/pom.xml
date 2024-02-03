@@ -12,8 +12,8 @@
     <artifactId>shareIt-gateway</artifactId>
 
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencies>
@@ -35,7 +35,6 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.14</version>
         </dependency>
 
 
@@ -57,6 +56,8 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <repositories>
+    </repositories>
 
     <build>
         <plugins>

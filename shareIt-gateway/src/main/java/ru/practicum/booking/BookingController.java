@@ -1,9 +1,9 @@
 package ru.practicum.booking;
 
-import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
@@ -11,8 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.booking.DTO.BookingRequestDto;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import javax.validation.Valid;
 
 
 @Controller
@@ -41,7 +40,7 @@ public class BookingController {
             (
                     @RequestHeader("X-Sharer-User-Id") Long userId,
                     @PathVariable Long bookingId,
-                    @RequestParam Boolean approved
+                    @RequestParam @DefaultValue(value = "null") String approved
             ) {
         log.info("Пришел POST запрос /bookings/{} с телом: {}", bookingId, approved);
         ResponseEntity<Object> bookingResponseDto = client.approvedBooking(userId, bookingId, approved);

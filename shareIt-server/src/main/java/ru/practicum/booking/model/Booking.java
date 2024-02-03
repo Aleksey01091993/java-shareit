@@ -1,7 +1,7 @@
 package ru.practicum.booking.model;
 
 
-import jakarta.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,6 +11,7 @@ import ru.practicum.booking.status.Status;
 import ru.practicum.item.model.Item;
 import ru.practicum.user.model.User;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 

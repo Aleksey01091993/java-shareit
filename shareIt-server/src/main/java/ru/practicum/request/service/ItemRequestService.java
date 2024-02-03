@@ -1,9 +1,12 @@
 package ru.practicum.request.service;
 
-import jakarta.annotation.Nullable;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -11,13 +14,14 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.item.storage.ItemStorage;
 import ru.practicum.request.dto.ItemRequestCreateRequestDto;
+import ru.practicum.request.dto.ItemRequestResponseDto;
 import ru.practicum.request.mapper.ItemRequestMapper;
 import ru.practicum.request.model.ItemRequest;
 import ru.practicum.request.storage.ItemRequestStorage;
 import ru.practicum.user.model.User;
 import ru.practicum.user.storage.UserStorage;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,34 +39,37 @@ public class ItemRequestService {
 
 
     @PostMapping
-    public ItemRequest create(
+    public ResponseEntity<Object> create(
             @RequestBody ItemRequestCreateRequestDto itemRequest,
             @RequestHeader("X-Sharer-User-Id") Long userId
 
     ) {
         User user = userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("user not found by id: " + userId));
-        return itemRequestStorage.save(ItemRequestMapper.toItemRequest(itemRequest, user, null));
+        ItemRequest request = itemRequestStorage.save(ItemRequestMapper.toItemRequest(itemRequest, user, null));
+        return new ResponseEntity<>(ItemRequestMapper.toItemRequestResponseDto(request), HttpStatus.OK);
     }
 
     @GetMapping
-    public List<ItemRequest> findByAll(
+    public ResponseEntity<Object> findByAll(
             @RequestHeader("X-Sharer-User-Id") Long userId
 
     ) {
         userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("user not found by id: " + userId));
-        return itemRequestStorage.findByRequestor_IdOrderByCreatedAsc(userId).stream()
+        List<ItemRequestResponseDto> response = itemRequestStorage.findByRequestor_IdOrderByCreatedAsc(userId).stream()
                 .peek(o1 -> o1.setItems(
                         itemStorage.findByRequest_Id(o1.getId()).stream()
                                 .map(ItemRequestMapper::toItemRequestToItem)
                                 .collect(Collectors.toList())
                 ))
+                .map(ItemRequestMapper::toItemRequestResponseDto)
                 .collect(Collectors.toList());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/all")
-    public List<ItemRequest> getAllFrom(
+    public ResponseEntity<Object> getAllFrom(
             @RequestHeader("X-Sharer-User-Id") Long userId,
             @RequestParam @Nullable Integer from,
             @RequestParam @Nullable Integer size
@@ -70,21 +77,23 @@ public class ItemRequestService {
         userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("user not found by id:" + userId));
         if (from == null || size == null) {
-            return new ArrayList<>();
+            return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
         }
 
-        return itemRequestStorage.findByRequestor_IdNotOrderByCreatedAsc(userId, PageRequest.of(from / size, size))
+        List<ItemRequestResponseDto> response = itemRequestStorage.findByRequestor_IdNotOrderByCreatedAsc(userId, PageRequest.of(from / size, size))
                 .stream()
                 .peek(o1 -> o1.setItems(
                         itemStorage.findByRequest_Id(o1.getId()).stream()
                                 .map(ItemRequestMapper::toItemRequestToItem)
                                 .collect(Collectors.toList())
                 ))
+                .map(ItemRequestMapper::toItemRequestResponseDto)
                 .collect(Collectors.toList());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/{requestId}")
-    public ItemRequest findById(
+    public ResponseEntity<Object> findById(
             @PathVariable Long requestId,
             @RequestHeader("X-Sharer-User-Id") Long userId
     ) {
@@ -97,7 +106,7 @@ public class ItemRequestService {
         itemRequest.setItems(itemStorage.findByRequest_Id(requestId).stream()
                 .map(ItemRequestMapper::toItemRequestToItem)
                 .collect(Collectors.toList()));
-        return itemRequest;
+        return new ResponseEntity<>(ItemRequestMapper.toItemRequestResponseDto(itemRequest), HttpStatus.OK);
     }
 
 

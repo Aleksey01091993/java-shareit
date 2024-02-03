@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
@@ -13,7 +12,6 @@ import ru.practicum.item.DTO.CommentsDTO;
 import ru.practicum.item.DTO.ItemCreateRequestDto;
 
 import java.util.Map;
-import java.util.function.Supplier;
 
 @Service
 public class ItemClient extends BaseClient {
@@ -25,7 +23,7 @@ public class ItemClient extends BaseClient {
         super(
                 builder
                         .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
-                        .requestFactory((Supplier<ClientHttpRequestFactory>) HttpComponentsClientHttpRequestFactory::new)
+                        .requestFactory(HttpComponentsClientHttpRequestFactory::new)
                         .build()
         );
     }
@@ -49,14 +47,24 @@ public class ItemClient extends BaseClient {
     }
 
     public ResponseEntity<Object> itemsGetAll(Long userId, Integer from, Integer size) {
+        if (from == null || size == null) {
+
+            return get("", userId);
+        }
         Map<String, Object> parameters = Map.of(
                 "from", from,
                 "size", size
         );
-        return get("/all?from={from}&size={size}", userId, parameters);
+        return get("?from={from}&size={size}", userId, parameters);
     }
 
     public ResponseEntity<Object> itemsGetAllSearch(String text, Integer from, Integer size) {
+        if (from == null || size == null) {
+            Map<String, Object> parameters = Map.of(
+                    "text", text
+            );
+            return get("/search?text={text}", null, parameters);
+        }
         Map<String, Object> parameters = Map.of(
                 "from", from,
                 "size", size,
@@ -69,6 +77,6 @@ public class ItemClient extends BaseClient {
         Map<String, Object> parameters = Map.of(
                 "itemId", itemId
         );
-        return post("/{itemId}/comment", userId, parameters);
+        return post("/{itemId}/comment", userId, parameters, commentsDTO);
     }
 }

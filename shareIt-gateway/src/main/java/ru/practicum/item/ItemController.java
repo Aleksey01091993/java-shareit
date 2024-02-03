@@ -1,15 +1,17 @@
 package ru.practicum.item;
 
-import jakarta.annotation.Nullable;
-import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.item.DTO.CommentsDTO;
 import ru.practicum.item.DTO.ItemCreateRequestDto;
+
+import javax.validation.Valid;
 
 
 @Controller

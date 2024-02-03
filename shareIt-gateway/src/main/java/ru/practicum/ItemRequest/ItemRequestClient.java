@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
@@ -12,7 +11,6 @@ import ru.practicum.ItemRequest.DTO.ItemRequestCreateRequestDto;
 import ru.practicum.client.BaseClient;
 
 import java.util.Map;
-import java.util.function.Supplier;
 
 @Service
 public class ItemRequestClient extends BaseClient {
@@ -23,7 +21,7 @@ public class ItemRequestClient extends BaseClient {
         super(
                 builder
                         .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
-                        .requestFactory((Supplier<ClientHttpRequestFactory>) HttpComponentsClientHttpRequestFactory::new)
+                        .requestFactory(HttpComponentsClientHttpRequestFactory::new)
                         .build()
         );
     }
@@ -37,11 +35,14 @@ public class ItemRequestClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getAllFrom(Long userId, Integer from, Integer size) {
-        Map<String, Object> parameters = Map.of(
-                "from", from,
-                "size", size
-        );
-        return get("/all?from={from}&size={size}", userId, parameters);
+        if (from != null && size != null) {
+            Map<String, Object> parameters = Map.of(
+                    "from", from,
+                    "size", size
+            );
+            return get("/all?from={from}&size={size}", userId, parameters);
+        }
+        return get("/all", userId);
 
     }
 
@@ -49,7 +50,7 @@ public class ItemRequestClient extends BaseClient {
         Map<String, Object> parameters = Map.of(
                 "requestId", requestId
         );
-        return get("/{userId}", userId, parameters);
+        return get("/{requestId}", userId, parameters);
     }
 
 

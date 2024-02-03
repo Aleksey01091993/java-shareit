@@ -22,7 +22,7 @@ public class BookingClient extends BaseClient {
         super(
                 builder
                         .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
-                        .requestFactory(() -> new HttpComponentsClientHttpRequestFactory())
+                        .requestFactory(HttpComponentsClientHttpRequestFactory::new)
                         .build()
         );
     }
@@ -31,7 +31,7 @@ public class BookingClient extends BaseClient {
         return post("", userId, requestDto);
     }
 
-    public ResponseEntity<Object> approvedBooking(Long userId, Long bookingId, Boolean approved) {
+    public ResponseEntity<Object> approvedBooking(Long userId, Long bookingId, String approved) {
         Map<String, Object> parameters = Map.of(
                 "bookingId", bookingId,
                 "approved", approved
@@ -47,21 +47,38 @@ public class BookingClient extends BaseClient {
     }
 
     public ResponseEntity<Object> gatAllBooking(Long userId, String state, Integer from, Integer size) {
+        if (from != null && size != null ) {
+            Map<String, Object> parameters = Map.of(
+                    "from", from,
+                    "size", size,
+                    "state", state
+            );
+            return get("?state={state}&from={from}&size={size}", userId, parameters);
+
+        } else if (state == null) {
+            return get("", userId);
+        }
         Map<String, Object> parameters = Map.of(
-                "from", from,
-                "size", size,
                 "state", state
         );
-        return get("?state={state}&from={from}&size={size}", userId, parameters);
+        return get("?state={state}", userId, parameters);
     }
 
     public ResponseEntity<Object> getAllOwnerId(Long ownerId, String state, Integer from, Integer size) {
+        if (from != null && size != null) {
+            Map<String, Object> parameters = Map.of(
+                    "from", from,
+                    "size", size,
+                    "state", state
+            );
+            return get("/owner?state={state}&from={from}&size={size}", ownerId, parameters);
+        } else if (state == null) {
+            return get("/owner", ownerId);
+        }
         Map<String, Object> parameters = Map.of(
-                "from", from,
-                "size", size,
                 "state", state
         );
-        return get("/owner?state={state}&from={from}&size={size}", ownerId, parameters);
+        return get("/owner?state={state}", ownerId, parameters);
     }
 
 
