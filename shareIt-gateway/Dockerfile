@@ -1,4 +1,3 @@
-FROM ubuntu:latest
-LABEL authors="79686"
-
-ENTRYPOINT ["top", "-b"]
+FROM amazoncorretto:11-alpine-jdk
+COPY target/*.jar app.jar
+ENTRYPOINT ["java", "-jar", "/app.jar"]
