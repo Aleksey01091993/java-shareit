@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   gateway:
-    build: ./shareIt-gateway
+    build: /shareIt-gateway
     image: gateway_image
     container_name: gateway_container
     ports:
@@ -20,14 +20,12 @@ services:
     depends_on:
       - db
     environment:
-      - DB_NAME=postgres
+      - BD=jdbc:postgresql://localhost:5433/postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=pass
-      - DB_HOST=localhost
-      - DB_PORT=5433
 
   db:
-    image: postgres
+    image: postgres:13.7-alpine
     container_name: some_postgres
     ports:
       - "5433:5432"
@@ -35,3 +33,5 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=pass
+      - DB_HOST=localhost
+      - DB_PORT=5432
