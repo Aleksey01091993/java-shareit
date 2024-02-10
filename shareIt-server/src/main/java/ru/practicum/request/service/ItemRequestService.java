@@ -2,15 +2,8 @@ package ru.practicum.request.service;
 
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.item.storage.ItemStorage;
 import ru.practicum.request.dto.ItemRequestCreateRequestDto;
@@ -26,33 +19,27 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@Controller
 @RequiredArgsConstructor
-@Slf4j
-@Validated
-@RequestMapping(path = "/requests")
 public class ItemRequestService {
     private final ItemRequestStorage itemRequestStorage;
     private final UserStorage userStorage;
     private final ItemStorage itemStorage;
 
 
-
-    @PostMapping
-    public ResponseEntity<Object> create(
-            @RequestBody ItemRequestCreateRequestDto itemRequest,
-            @RequestHeader("X-Sharer-User-Id") Long userId
+    public ItemRequestResponseDto create(
+            ItemRequestCreateRequestDto itemRequest,
+            Long userId
 
     ) {
         User user = userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("user not found by id: " + userId));
         ItemRequest request = itemRequestStorage.save(ItemRequestMapper.toItemRequest(itemRequest, user, null));
-        return new ResponseEntity<>(ItemRequestMapper.toItemRequestResponseDto(request), HttpStatus.OK);
+        return ItemRequestMapper.toItemRequestResponseDto(request);
     }
 
-    @GetMapping
-    public ResponseEntity<Object> findByAll(
-            @RequestHeader("X-Sharer-User-Id") Long userId
+
+    public List<ItemRequestResponseDto> findByAll(
+            Long userId
 
     ) {
         userStorage.findById(userId)
@@ -65,19 +52,19 @@ public class ItemRequestService {
                 ))
                 .map(ItemRequestMapper::toItemRequestResponseDto)
                 .collect(Collectors.toList());
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return response;
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<Object> getAllFrom(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
-            @RequestParam @Nullable Integer from,
-            @RequestParam @Nullable Integer size
+
+    public List<ItemRequestResponseDto> getAllFrom(
+            Long userId,
+            Integer from,
+            Integer size
     ) {
         userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("user not found by id:" + userId));
         if (from == null || size == null) {
-            return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
+            return Collections.emptyList();
         }
 
         List<ItemRequestResponseDto> response = itemRequestStorage.findByRequestor_IdNotOrderByCreatedAsc(userId, PageRequest.of(from / size, size))
@@ -89,13 +76,13 @@ public class ItemRequestService {
                 ))
                 .map(ItemRequestMapper::toItemRequestResponseDto)
                 .collect(Collectors.toList());
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return response;
     }
 
-    @GetMapping("/{requestId}")
-    public ResponseEntity<Object> findById(
-            @PathVariable Long requestId,
-            @RequestHeader("X-Sharer-User-Id") Long userId
+
+    public ItemRequestResponseDto findById(
+            Long requestId,
+            Long userId
     ) {
         userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("user not found by id:" + userId));
@@ -106,7 +93,7 @@ public class ItemRequestService {
         itemRequest.setItems(itemStorage.findByRequest_Id(requestId).stream()
                 .map(ItemRequestMapper::toItemRequestToItem)
                 .collect(Collectors.toList()));
-        return new ResponseEntity<>(ItemRequestMapper.toItemRequestResponseDto(itemRequest), HttpStatus.OK);
+        return ItemRequestMapper.toItemRequestResponseDto(itemRequest);
     }
 
 

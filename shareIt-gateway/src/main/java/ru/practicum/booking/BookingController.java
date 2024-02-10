@@ -24,7 +24,7 @@ public class BookingController {
 
 
     @PostMapping
-    public ResponseEntity<Object> createBookingDTO
+    public ResponseEntity<Object> createBooking
             (
                     @RequestBody @Valid @Nullable BookingRequestDto bookingRequestDto,
                     @RequestHeader("X-Sharer-User-Id") Long userId
@@ -36,7 +36,7 @@ public class BookingController {
     }
 
     @PatchMapping("/{bookingId}")
-    public ResponseEntity<Object> approvedBookingDTO
+    public ResponseEntity<Object> approvedBooking
             (
                     @RequestHeader("X-Sharer-User-Id") Long userId,
                     @PathVariable Long bookingId,
@@ -49,7 +49,7 @@ public class BookingController {
     }
 
     @GetMapping("/{bookingId}")
-    public ResponseEntity<Object> getBookingDTO
+    public ResponseEntity<Object> getBooking
             (
                     @RequestHeader("X-Sharer-User-Id") Long userId,
                     @PathVariable Long bookingId
@@ -61,7 +61,7 @@ public class BookingController {
     }
 
     @GetMapping
-    public ResponseEntity<Object> gatAllBookingDTO
+    public ResponseEntity<Object> gatAllBooking
             (
                     @RequestHeader("X-Sharer-User-Id") Long userId,
                     @RequestParam @Nullable String state,

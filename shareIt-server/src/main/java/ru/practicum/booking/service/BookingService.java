@@ -3,12 +3,7 @@ package ru.practicum.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.*;
 import ru.practicum.booking.dto.BookingRequestDto;
 import ru.practicum.booking.dto.BookingResponseDTO;
 import ru.practicum.booking.mapper.BookingMapper;
@@ -29,8 +24,6 @@ import java.util.stream.Collectors;
 import static ru.practicum.booking.status.Status.*;
 
 @Service
-@Controller
-@RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
 public class BookingService {
     private final UserStorage userStorage;
@@ -38,10 +31,9 @@ public class BookingService {
     private final BookingStorage bookingStorage;
 
 
-    @PostMapping
-    public ResponseEntity<Object> create(
-            @RequestBody @Nullable BookingRequestDto bookingRequestDto,
-            @RequestHeader("X-Sharer-User-Id") Long userId
+    public BookingResponseDTO create(
+            BookingRequestDto bookingRequestDto,
+            Long userId
     ) {
         Item item = itemStorage.findById(bookingRequestDto.getItemId())
                 .orElseThrow(() -> new NotFoundException("item not found by id: " + bookingRequestDto.getItemId()));
@@ -68,13 +60,13 @@ public class BookingService {
                 WAITING
         );
         Booking newBooking = bookingStorage.save(booking);
-        return new ResponseEntity<>(BookingMapper.toBookingDto(newBooking), HttpStatus.OK);
+        return BookingMapper.toBookingDto(newBooking);
     }
-    @PatchMapping("/{bookingId}")
-    public ResponseEntity<Object> approved(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
-            @PathVariable Long bookingId,
-            @RequestParam Boolean approved
+
+    public BookingResponseDTO approved(
+            Long userId,
+            Long bookingId,
+            String approved
     ) {
         Booking newBooking = bookingStorage.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("booking not found by id: " + bookingId));
@@ -86,34 +78,34 @@ public class BookingService {
         if (newBooking.getStatus() != WAITING) {
             throw new BadRequestException("status error");
         }
-        if (approved) {
+        if (approved.equals("true")) {
             newBooking.setStatus(APPROVED);
         } else {
             newBooking.setStatus(REJECTED);
         }
         Booking saveBooking = bookingStorage.save(newBooking);
-        return new ResponseEntity<>(BookingMapper.toBookingDto(saveBooking), HttpStatus.OK);
+        return BookingMapper.toBookingDto(saveBooking);
     }
-    @GetMapping("/{bookingId}")
-    public ResponseEntity<Object> get(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
-            @PathVariable Long bookingId
+
+    public BookingResponseDTO get(
+            Long userId,
+            Long bookingId
     ) {
         Booking newBooking = bookingStorage.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("booking not found by id: " + bookingId));
         if (newBooking.getItem().getOwner().getId().equals(userId) ||
                 newBooking.getBooker().getId().equals(userId)) {
-            return new ResponseEntity<>(BookingMapper.toBookingDto(newBooking), HttpStatus.OK);
+            return BookingMapper.toBookingDto(newBooking);
         } else {
             throw new NotFoundException("user or owner not found by id: " + userId);
         }
     }
-    @GetMapping
-    public ResponseEntity<Object> getAll(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
-            @RequestParam @Nullable String state,
-            @RequestParam @Nullable Integer from,
-            @RequestParam @Nullable Integer size
+
+    public List<BookingResponseDTO> getAll(
+            Long userId,
+            String state,
+            Integer from,
+            Integer size
     ) {
         userStorage.findById(userId)
                 .orElseThrow(() -> new InternalServerErrorException("owner not found by id:" + userId));
@@ -122,7 +114,7 @@ public class BookingService {
                     .stream()
                     .map(BookingMapper::toBookingDto)
                     .collect(Collectors.toList());
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return response;
         }
         if (state == null || state.equals("ALL")) {
             List<BookingResponseDTO> response = bookingStorage
@@ -130,53 +122,53 @@ public class BookingService {
                     .stream()
                     .map(BookingMapper::toBookingDto)
                     .collect(Collectors.toList());
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return response;
         } else if (state.equals("CURRENT")) {
             List<BookingResponseDTO> response = bookingStorage
                     .findByBooker_IdAndStartTimeBeforeAndEndTimeAfterOrderByStartTimeAsc(userId, LocalDateTime.now(), LocalDateTime.now())
                     .stream()
                     .map(BookingMapper::toBookingDto)
                     .collect(Collectors.toList());
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return response;
         } else if (state.equals("PAST")) {
             List<BookingResponseDTO> response = bookingStorage
                     .findByBooker_IdAndEndTimeBeforeOrderByStartTimeDesc(userId, LocalDateTime.now())
                     .stream()
                     .map(BookingMapper::toBookingDto)
                     .collect(Collectors.toList());
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return response;
         } else if (state.equals("FUTURE")) {
             List<BookingResponseDTO> response = bookingStorage
                     .findByBooker_IdAndStartTimeAfterOrderByStartTimeDesc(userId, LocalDateTime.now())
                     .stream()
                     .map(BookingMapper::toBookingDto)
                     .collect(Collectors.toList());
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return response;
         } else if (state.equals("WAITING")) {
             List<BookingResponseDTO> response = bookingStorage
                     .findByBooker_IdAndStatusOrderByStartTimeDesc(userId, WAITING)
                     .stream()
                     .map(BookingMapper::toBookingDto)
                     .collect(Collectors.toList());
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return response;
         } else if (state.equals("REJECTED")) {
             List<BookingResponseDTO> response = bookingStorage
                     .findByBooker_IdAndStatusOrderByStartTimeDesc(userId, REJECTED)
                     .stream()
                     .map(BookingMapper::toBookingDto)
                     .collect(Collectors.toList());
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return response;
         } else {
             throw new InternalServerErrorException("Unknown state: " + state);
         }
 
     }
-    @GetMapping("/owner")
-    public ResponseEntity<Object> getAllOwnerId(
-            @RequestHeader("X-Sharer-User-Id") Long ownerId,
-            @RequestParam @Nullable String state,
-            @RequestParam @Nullable Integer from,
-            @RequestParam @Nullable Integer size
+
+    public List<BookingResponseDTO> getAllOwnerId(
+            Long ownerId,
+            String state,
+            Integer from,
+            Integer size
     ) {
         userStorage.findById(ownerId)
                 .orElseThrow(() -> new InternalServerErrorException("owner not found by id:" + ownerId));
@@ -186,49 +178,49 @@ public class BookingService {
                     .stream()
                     .map(BookingMapper::toBookingDto)
                     .collect(Collectors.toList());
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return response;
         }
         if (state == null || state.equals("ALL")) {
             List<BookingResponseDTO> response = bookingStorage.findByItem_OwnerIdOrderByStartTimeDesc(ownerId)
                     .stream()
                     .map(BookingMapper::toBookingDto)
                     .collect(Collectors.toList());
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return response;
         } else if (state.equals("CURRENT")) {
             List<BookingResponseDTO> response = bookingStorage
                     .findByItem_OwnerIdAndStartTimeBeforeAndEndTimeAfterOrderByStartTimeAsc(ownerId, LocalDateTime.now(), LocalDateTime.now())
                     .stream()
                     .map(BookingMapper::toBookingDto)
                     .collect(Collectors.toList());
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return response;
         } else if (state.equals("PAST")) {
             List<BookingResponseDTO> response = bookingStorage
                     .findByItem_OwnerIdAndEndTimeBeforeOrderByStartTimeDesc(ownerId, LocalDateTime.now())
                     .stream()
                     .map(BookingMapper::toBookingDto)
                     .collect(Collectors.toList());
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return response;
         } else if (state.equals("FUTURE")) {
             List<BookingResponseDTO> response = bookingStorage
                     .findByItem_OwnerIdAndStartTimeAfterOrderByStartTimeDesc(ownerId, LocalDateTime.now())
                     .stream()
                     .map(BookingMapper::toBookingDto)
                     .collect(Collectors.toList());
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return response;
         } else if (state.equals("WAITING")) {
             List<BookingResponseDTO> response = bookingStorage
                     .findByItem_OwnerIdAndStatusOrderByStartTimeDesc(ownerId, WAITING)
                     .stream()
                     .map(BookingMapper::toBookingDto)
                     .collect(Collectors.toList());
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return response;
         } else if (state.equals("REJECTED")) {
             List<BookingResponseDTO> response = bookingStorage
                     .findByItem_OwnerIdAndStatusOrderByStartTimeDesc(ownerId, REJECTED)
                     .stream()
                     .map(BookingMapper::toBookingDto)
                     .collect(Collectors.toList());
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return response;
         } else {
             throw new InternalServerErrorException("Unknown state: " + state);
         }
