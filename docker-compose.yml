@@ -20,7 +20,7 @@ services:
     depends_on:
       - db
     environment:
-      - BD=jdbc:postgresql://localhost:5433/postgres
+      - BD=jdbc:postgresql://db:5432/postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=pass
 
@@ -33,5 +33,5 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=pass
-      - DB_HOST=localhost
+      - DB_HOST=db
       - DB_PORT=5432
