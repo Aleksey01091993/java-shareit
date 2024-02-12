@@ -4,12 +4,7 @@ package ru.practicum.item.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.*;
 import ru.practicum.booking.storage.BookingStorage;
 import ru.practicum.exception.BadRequestException;
 import ru.practicum.exception.NotFoundException;
@@ -36,8 +31,6 @@ import java.util.List;
 import static ru.practicum.booking.status.Status.APPROVED;
 
 @Service
-@Controller
-@RequestMapping(path = "/items")
 @RequiredArgsConstructor
 public class ItemService implements Serializable {
 
@@ -48,10 +41,9 @@ public class ItemService implements Serializable {
     private final ItemRequestStorage  itemRequestStorage;
 
 
-    @PostMapping
-    public ResponseEntity<Object> create(
-            @RequestBody ItemCreateRequestDto item,
-            @RequestHeader("X-Sharer-User-Id") Long userId
+    public ItemResponseDto create(
+            ItemCreateRequestDto item,
+            Long userId
     ) {
         User user = userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("user not found by id: " + userId));
@@ -59,14 +51,14 @@ public class ItemService implements Serializable {
                 .orElse(null) : null;
         Item newItem = itemStorage.save(ItemMapper.toItem(null, item, user, itemRequest));
         ItemResponseDto itemDTO = ItemMapper.toItemDTO(newItem, newItem.getComments());
-        return new ResponseEntity<>(itemDTO, HttpStatus.OK);
+        return itemDTO;
 
     }
-    @PatchMapping("/{itemId}")
-    public ResponseEntity<Object> update(
-            @RequestBody @Nullable ItemCreateRequestDto item,
-            @RequestHeader("X-Sharer-User-Id") Long userId,
-            @PathVariable Long itemId
+
+    public ItemResponseDto update(
+            ItemCreateRequestDto item,
+            Long userId,
+            Long itemId
     ) {
         Item itemNew = itemStorage.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("item not found by id:" + itemId));
@@ -79,36 +71,38 @@ public class ItemService implements Serializable {
         ItemRequest itemRequest = item.getRequestId() != null ? itemRequestStorage.findById(item.getRequestId())
                 .orElse(null) : null;
         Item newItem = itemStorage.save(ItemMapper.toItem(itemNew, item, user, itemRequest));
-        return new ResponseEntity<>(ItemMapper.toItemDTO(newItem, newItem.getComments()), HttpStatus.OK);
+        return ItemMapper.toItemDTO(newItem, newItem.getComments());
     }
-    @GetMapping("/{itemId}")
-    public ResponseEntity<Object> get(
-            @PathVariable Long itemId,
-            @RequestHeader("X-Sharer-User-Id") Long userId
+
+    public ItemResponseDto get(
+            Long itemId,
+            Long userId
     ) {
+        userStorage.findById(userId)
+                .orElseThrow(() -> new NotFoundException("user not found by id:" + userId));
         Item item = itemStorage.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("item not found by id:" + itemId));
         item.setComments(commentsStorage.findAllByItemId(itemId));
         item.setLastBooking(
                 ItemMapper.toBookingToItem(
                         bookingStorage
-                                .findFirstByEndTimeBeforeAndItemIdAndItem_OwnerIdOrderByEndTimeDesc(LocalDateTime.now(), itemId, item.getOwner().getId()).orElse(null)
+                                .findFirstByEndTimeBeforeAndItemIdAndItem_OwnerIdOrderByEndTimeDesc(LocalDateTime.now(), itemId, userId).orElse(null)
                 )
         );
         item.setNextBooking(
                 ItemMapper.toBookingToItem(
                         bookingStorage
-                                .findFirstByStartTimeAfterAndItemIdAndItem_OwnerIdAndStatusOrderByStartTime(LocalDateTime.now(), itemId, item.getOwner().getId(), APPROVED).orElse(null)
+                                .findFirstByStartTimeAfterAndItemIdAndItem_OwnerIdAndStatusOrderByStartTime(LocalDateTime.now(), itemId, userId, APPROVED).orElse(null)
                 )
         );
         Item newItem = ItemMapper.toItem(item, ItemMapper.toItemResponseDto(item), item.getOwner(), item.getRequest());
-        return new ResponseEntity<>(ItemMapper.toItemDTO(newItem, newItem.getComments()), HttpStatus.OK);
+        return ItemMapper.toItemDTO(newItem, newItem.getComments());
     }
-    @GetMapping
-    public ResponseEntity<Object> getAll(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
-            @RequestParam @Nullable Integer from,
-            @RequestParam @Nullable Integer size
+
+    public List<ItemResponseDto> getAll(
+            Long userId,
+            Integer from,
+            Integer size
     ) {
         if (from != null && size != null) {
             List<Item> items = itemStorage
@@ -136,7 +130,7 @@ public class ItemService implements Serializable {
 
             }
 
-            return new ResponseEntity<>(newItem, HttpStatus.OK);
+            return newItem;
         }
         List<Item> items = itemStorage
                 .findAllByOwnerIdOrderById(userId);
@@ -161,13 +155,13 @@ public class ItemService implements Serializable {
             );
 
         }
-        return new ResponseEntity<>(newItem, HttpStatus.OK);
+        return newItem;
     }
-    @GetMapping("/search")
-    public ResponseEntity<Object> getAllSearch(
-            @RequestParam @Nullable String text,
-            @RequestParam @Nullable Integer from,
-            @RequestParam @Nullable Integer size
+
+    public List<ItemResponseDto> getAllSearch(
+            String text,
+            Integer from,
+            Integer size
     ) {
         if (from != null && size != null) {
             Page<Item> items = itemStorage.findAll(PageRequest.of(from / size, size));
@@ -192,10 +186,10 @@ public class ItemService implements Serializable {
                                 );
 
             }
-            return new ResponseEntity<>(newItem, HttpStatus.OK);
+            return newItem;
         }
         if (text == null || text.isEmpty()) {
-            return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
+            return Collections.emptyList();
         } else {
             List<Item> items = itemStorage
                     .findAllByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndAvailable(text, text, true);
@@ -220,15 +214,15 @@ public class ItemService implements Serializable {
                         );
 
             }
-            return new ResponseEntity<>(newItem, HttpStatus.OK);
+            return newItem;
         }
 
     }
-    @PostMapping("/{itemId}/comment")
-    public ResponseEntity<Object> addComment(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
-            @PathVariable Long itemId,
-            @RequestBody CommentsDTO commentsDTO
+
+    public CommentsDTO addComment(
+            Long userId,
+            Long itemId,
+            CommentsDTO commentsDTO
     ) {
         itemStorage.findById(itemId)
                 .orElseThrow(() -> new BadRequestException("item not found by id:" + itemId));
@@ -237,7 +231,7 @@ public class ItemService implements Serializable {
         bookingStorage.findFirstByBookerIdAndItemIdAndStatusAndEndTimeBefore(userId, itemId, APPROVED, LocalDateTime.now())
                 .orElseThrow(() -> new BadRequestException("вы не можете остовлять коментарий!"));
         Comments comments = commentsStorage.save(new Comments(null, commentsDTO.getText(), itemId, user, LocalDateTime.now()));
-        return new ResponseEntity<>(CommentMapper.toCommentsDTO(comments), HttpStatus.OK);
+        return CommentMapper.toCommentsDTO(comments);
     }
 
 

@@ -12,6 +12,7 @@ import ru.practicum.item.DTO.CommentsDTO;
 import ru.practicum.item.DTO.ItemCreateRequestDto;
 
 import javax.validation.Valid;
+import javax.validation.constraints.PositiveOrZero;
 
 
 @Controller
@@ -56,7 +57,7 @@ public class ItemController {
             ) {
         log.info("Пришел GET запрос /items/{}", itemId);
         ResponseEntity<Object> itemResponseDto = client.itemGet(userId, itemId);
-                log.info("Отправлен ответ для GET запроса /items/{} с телом: {}", itemId, itemResponseDto);
+        log.info("Отправлен ответ для GET запроса /items/{} с телом: {}", itemId, itemResponseDto);
         return itemResponseDto;
     }
 
@@ -64,27 +65,27 @@ public class ItemController {
     public ResponseEntity<Object> itemsGetAll
             (
                     @RequestHeader("X-Sharer-User-Id") Long userId,
-                    @RequestParam @Nullable Integer from,
-                    @RequestParam @Nullable Integer size
+                    @RequestParam @Nullable @PositiveOrZero Integer from,
+                    @RequestParam @Nullable @PositiveOrZero Integer size
             ) {
-            log.info("Пришел GET запрос /items с параметрами: {}, {}", from, size);
+        log.info("Пришел GET запрос /items с параметрами: {}, {}", from, size);
         ResponseEntity<Object> itemResponseDto = client.itemsGetAll(userId, from, size);
-            log.info("Отправлен ответ для GET запроса /items с параметрами: {}, {} с телом: {}", from, size, itemResponseDto);
-            return itemResponseDto;
+        log.info("Отправлен ответ для GET запроса /items с параметрами: {}, {} с телом: {}", from, size, itemResponseDto);
+        return itemResponseDto;
     }
 
     @GetMapping("/search")
     public ResponseEntity<Object> itemsGetAllSearch
             (
                     @RequestParam @Nullable String text,
-                    @RequestParam @Nullable Integer from,
-                    @RequestParam @Nullable Integer size
+                    @RequestParam @Nullable @PositiveOrZero Integer from,
+                    @RequestParam @Nullable @PositiveOrZero Integer size
             ) {
 
-            log.info("Пришел GET запрос /items с параметрами: {}, {}, {}", text, from, size);
+        log.info("Пришел GET запрос /items с параметрами: {}, {}, {}", text, from, size);
         ResponseEntity<Object> itemResponseDto = client.itemsGetAllSearch(text, from, size);
-            log.info("Отправлен ответ для GET запроса /items с параметрами: {}, {}, {} с телом: {}", text, from, size, itemResponseDto);
-            return itemResponseDto;
+        log.info("Отправлен ответ для GET запроса /items с параметрами: {}, {}, {} с телом: {}", text, from, size, itemResponseDto);
+        return itemResponseDto;
     }
 
     @PostMapping("/{itemId}/comment")

@@ -63,11 +63,12 @@ public class ItemRequestService {
     ) {
         userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("user not found by id:" + userId));
+        List<ItemRequestResponseDto> response;
         if (from == null || size == null) {
             return Collections.emptyList();
         }
 
-        List<ItemRequestResponseDto> response = itemRequestStorage.findByRequestor_IdNotOrderByCreatedAsc(userId, PageRequest.of(from / size, size))
+        response = itemRequestStorage.findByRequestor_IdNotOrderByCreatedAsc(userId, PageRequest.of(from / size, size))
                 .stream()
                 .peek(o1 -> o1.setItems(
                         itemStorage.findByRequest_Id(o1.getId()).stream()

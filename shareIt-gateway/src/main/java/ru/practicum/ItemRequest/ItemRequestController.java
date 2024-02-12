@@ -1,15 +1,16 @@
 package ru.practicum.ItemRequest;
 
-import org.springframework.lang.Nullable;
-import ru.practicum.ItemRequest.DTO.ItemRequestCreateRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.ItemRequest.DTO.ItemRequestCreateRequestDto;
 
 import javax.validation.Valid;
+import javax.validation.constraints.PositiveOrZero;
 
 
 @Controller
@@ -42,12 +43,13 @@ public class ItemRequestController {
         log.info("Отправлен ответ для GET запроса /requests с телом: {}", itemRequestResponseDto);
         return itemRequestResponseDto;
     }
+
     @GetMapping("/all")
     public ResponseEntity<Object> findAllFrom
             (
                     @RequestHeader("X-Sharer-User-Id") Long userId,
-                    @RequestParam @Nullable Integer from,
-                    @RequestParam @Nullable Integer size
+                    @RequestParam @Nullable @PositiveOrZero Integer from,
+                    @RequestParam @Nullable @PositiveOrZero Integer size
             ) {
         log.info("Пришел GET запрос /requests с параметрами: {}, {}, {}", userId, from, size);
         ResponseEntity<Object> itemRequestResponseDto = client.getAllFrom(userId, from, size);

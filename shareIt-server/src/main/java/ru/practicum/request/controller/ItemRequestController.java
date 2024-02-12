@@ -62,7 +62,7 @@ public class ItemRequestController {
             @RequestHeader("X-Sharer-User-Id") Long userId
     ) {
         log.info("Пришел GET запрос /requests с параметрами: {}", requestId);
-        ItemRequestResponseDto itemRequestResponseDto = service.findById(userId, requestId);
+        ItemRequestResponseDto itemRequestResponseDto = service.findById(requestId, userId);
         log.info("Отправлен ответ для GET запроса /requests с телом: {}", itemRequestResponseDto);
         return new ResponseEntity<>(itemRequestResponseDto, HttpStatus.OK);
     }

@@ -47,13 +47,12 @@ public class BookingClient extends BaseClient {
     }
 
     public ResponseEntity<Object> gatAllBooking(Long userId, String state, Integer from, Integer size) {
-        if (from != null && size != null ) {
+        if (from != null && size != null) {
             Map<String, Object> parameters = Map.of(
                     "from", from,
-                    "size", size,
-                    "state", state
+                    "size", size
             );
-            return get("?state={state}&from={from}&size={size}", userId, parameters);
+            return get("?from={from}&size={size}", userId, parameters);
 
         } else if (state == null) {
             return get("", userId);
@@ -68,10 +67,9 @@ public class BookingClient extends BaseClient {
         if (from != null && size != null) {
             Map<String, Object> parameters = Map.of(
                     "from", from,
-                    "size", size,
-                    "state", state
+                    "size", size
             );
-            return get("/owner?state={state}&from={from}&size={size}", ownerId, parameters);
+            return get("/owner?from={from}&size={size}", ownerId, parameters);
         } else if (state == null) {
             return get("/owner", ownerId);
         }

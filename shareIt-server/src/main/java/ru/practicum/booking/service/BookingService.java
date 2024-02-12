@@ -127,14 +127,14 @@ public class BookingService {
             List<BookingResponseDTO> response = bookingStorage
                     .findByBooker_IdAndStartTimeBeforeAndEndTimeAfterOrderByStartTimeAsc(userId, LocalDateTime.now(), LocalDateTime.now())
                     .stream()
-                    .map(BookingMapper::toBookingDto)
+                    .map(BookingMapper::toBookingDtoCurrent)
                     .collect(Collectors.toList());
             return response;
         } else if (state.equals("PAST")) {
             List<BookingResponseDTO> response = bookingStorage
                     .findByBooker_IdAndEndTimeBeforeOrderByStartTimeDesc(userId, LocalDateTime.now())
                     .stream()
-                    .map(BookingMapper::toBookingDto)
+                    .map(BookingMapper::toBookingDtoPast)
                     .collect(Collectors.toList());
             return response;
         } else if (state.equals("FUTURE")) {
@@ -190,14 +190,14 @@ public class BookingService {
             List<BookingResponseDTO> response = bookingStorage
                     .findByItem_OwnerIdAndStartTimeBeforeAndEndTimeAfterOrderByStartTimeAsc(ownerId, LocalDateTime.now(), LocalDateTime.now())
                     .stream()
-                    .map(BookingMapper::toBookingDto)
+                    .map(BookingMapper::toBookingDtoCurrent)
                     .collect(Collectors.toList());
             return response;
         } else if (state.equals("PAST")) {
             List<BookingResponseDTO> response = bookingStorage
                     .findByItem_OwnerIdAndEndTimeBeforeOrderByStartTimeDesc(ownerId, LocalDateTime.now())
                     .stream()
-                    .map(BookingMapper::toBookingDto)
+                    .map(BookingMapper::toBookingDtoPast)
                     .collect(Collectors.toList());
             return response;
         } else if (state.equals("FUTURE")) {

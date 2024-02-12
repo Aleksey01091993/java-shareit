@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.booking.DTO.BookingRequestDto;
 
 import javax.validation.Valid;
+import javax.validation.constraints.PositiveOrZero;
 
 
 @Controller
@@ -65,14 +66,14 @@ public class BookingController {
             (
                     @RequestHeader("X-Sharer-User-Id") Long userId,
                     @RequestParam @Nullable String state,
-                    @RequestParam @Nullable Integer from,
-                    @RequestParam @Nullable Integer size
+                    @RequestParam @Nullable @PositiveOrZero Integer from,
+                    @RequestParam @Nullable @PositiveOrZero Integer size
             ) {
-            log.info("Пришел GET запрос /bookings с параметрами {}, {}, {}", state, from, size);
+        log.info("Пришел GET запрос /bookings с параметрами {}, {}, {}", state, from, size);
         ResponseEntity<Object> bookingResponseDto = client.gatAllBooking(userId, state, from, size);
-            log.info("Отправлен ответ для GET запроса /bookings с параметрами {}, {}, {}, с телом: {}", state, from, size, bookingResponseDto);
-            return bookingResponseDto;
-        }
+        log.info("Отправлен ответ для GET запроса /bookings с параметрами {}, {}, {}, с телом: {}", state, from, size, bookingResponseDto);
+        return bookingResponseDto;
+    }
 
 
     @GetMapping("/owner")
@@ -80,12 +81,12 @@ public class BookingController {
             (
                     @RequestHeader("X-Sharer-User-Id") Long ownerId,
                     @RequestParam @Nullable String state,
-                    @RequestParam @Nullable Integer from,
-                    @RequestParam @Nullable Integer size
+                    @RequestParam @Nullable @PositiveOrZero Integer from,
+                    @RequestParam @Nullable @PositiveOrZero Integer size
             ) {
-            log.info("Пришел GET запрос /bookings с параметрами: {}, {}, {}", state, from, size);
+        log.info("Пришел GET запрос /bookings с параметрами: {}, {}, {}", state, from, size);
         ResponseEntity<Object> bookingResponseDto = client.getAllOwnerId(ownerId, state, from, size);
-            log.info("Отправлен ответ для GET запроса /bookings с параметрами: {}, {}, {}, с телом: {}", state, from, size, bookingResponseDto);
-            return bookingResponseDto;
-        }
+        log.info("Отправлен ответ для GET запроса /bookings с параметрами: {}, {}, {}, с телом: {}", state, from, size, bookingResponseDto);
+        return bookingResponseDto;
     }
+}
