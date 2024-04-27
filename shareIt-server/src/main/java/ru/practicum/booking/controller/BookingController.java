@@ -24,6 +24,7 @@ public class BookingController {
     private final BookingService service;
 
 
+
     @PostMapping
     public ResponseEntity<Object> create(
             @RequestBody @Nullable BookingRequestDto bookingRequestDto,
